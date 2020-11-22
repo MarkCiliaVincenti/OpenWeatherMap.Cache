@@ -11,6 +11,7 @@ namespace OpenWeatherMap.Cache
 {
     public interface IOpenWeatherMapCache
     {
+        /// <inheritdoc cref="OpenWeatherMap.Cache.OpenWeatherMapCache.TryGetReadings"/>
         bool TryGetReadings(Location location, out Readings readings);
     }
     public class OpenWeatherMapCache : IOpenWeatherMapCache
