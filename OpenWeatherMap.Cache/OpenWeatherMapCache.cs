@@ -6,7 +6,6 @@ using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
-using System.Threading;
 
 namespace OpenWeatherMap.Cache
 {
