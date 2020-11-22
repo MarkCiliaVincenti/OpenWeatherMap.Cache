@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json.Linq;
 using OpenWeatherMap.Cache.Models;
 using System;
 using System.Collections.Concurrent;
@@ -6,35 +7,25 @@ using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
+using System.Timers;
 
 namespace OpenWeatherMap.Cache
 {
     public interface IOpenWeatherMapCache
     {
-        /// <inheritdoc cref="OpenWeatherMap.Cache.OpenWeatherMapCache.TryGetReadings"/>
+        /// <inheritdoc cref="OpenWeatherMapCache.TryGetReadings"/>
         bool TryGetReadings(Location location, out Readings readings);
     }
     public class OpenWeatherMapCache : IOpenWeatherMapCache
     {
-        private const int defaultResiliencyPeriod = 300_000;
+        private const int DefaultResiliencyPeriod = 300_000;
 
         private readonly string _apiKey;
         private readonly int _apiCachePeriod;
         private readonly int _resiliencyPeriod;
         private readonly object apiReadingsLock = new object();
-        private ConcurrentDictionary<Location, Readings> dictCache = new ConcurrentDictionary<Location, Readings>(new Location.EqualityComparer());
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="OpenWeatherMapCache"/> with the default resiliency of 5 minutes.
-        /// </summary>
-        /// <param name="apiKey">The unique API key obtained from OpenWeatherMap.</param>
-        /// <param name="apiCachePeriod">The number of milliseconds to cache for.</param>
-        public OpenWeatherMapCache(string apiKey, int apiCachePeriod)
-        {
-            _apiKey = apiKey;
-            _apiCachePeriod = apiCachePeriod;
-            _resiliencyPeriod = defaultResiliencyPeriod;
-        }
+        private readonly MemoryCache _memoryCache;
+        //private readonly ConcurrentDictionary<Location, Readings> _dictCache = new ConcurrentDictionary<Location, Readings>(new Location.EqualityComparer());
 
         /// <summary>
         /// Initializes a new instance of <see cref="OpenWeatherMapCache"/>.
@@ -42,11 +33,12 @@ namespace OpenWeatherMap.Cache
         /// <param name="apiKey">The unique API key obtained from OpenWeatherMap.</param>
         /// <param name="apiCachePeriod">The number of milliseconds to cache for.</param>
         /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable.</param>
-        public OpenWeatherMapCache(string apiKey, int apiCachePeriod, int resiliencyPeriod)
+        public OpenWeatherMapCache(string apiKey, int apiCachePeriod, int resiliencyPeriod = DefaultResiliencyPeriod)
         {
             _apiKey = apiKey;
             _apiCachePeriod = apiCachePeriod;
             _resiliencyPeriod = resiliencyPeriod;
+            _memoryCache = new MemoryCache(new MemoryCacheOptions());
         }
 
         private JObject GetJObjectFromUri(string uri)
@@ -57,7 +49,7 @@ namespace OpenWeatherMap.Cache
             request.CookieContainer = new CookieContainer();
             request.AllowReadStreamBuffering = true;
             request.Date = DateTime.UtcNow;
-            request.IfModifiedSince = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            request.IfModifiedSince = DateTime.MinValue;
             request.Accept = "application/json";
             request.KeepAlive = false;
             request.ProtocolVersion = new Version(1, 1);
@@ -75,19 +67,20 @@ namespace OpenWeatherMap.Cache
         }
 
         /// <summary>
-        /// Attempts to get the readings for the provided <see cref="OpenWeatherMap.Cache.Models.Location"/>.
+        /// Attempts to get the readings for the provided <see cref="Location"/>.
         /// </summary>
-        /// <param name="location">The <see cref="OpenWeatherMap.Cache.Models.Location"/> for which to get the readings.</param>
-        /// <param name="readings">When this method returns, contains the <see cref="OpenWeatherMap.Cache.Models.Readings"/> object for the provided location, or the default value if the operation failed.</param>
+        /// <param name="location">The <see cref="Location"/> for which to get the readings.</param>
+        /// <param name="readings">When this method returns, contains the <see cref="Readings"/> object for the provided location, or the default value if the operation failed.</param>
         /// <returns>true if the operation was successful; otherwise, false.</returns>
         public bool TryGetReadings(Location location, out Readings readings)
         {
             lock (apiReadingsLock)
             {
                 var dateTime = DateTime.UtcNow;
-                var found = dictCache.TryGetValue(location, out var apiCache);
+                var found = _memoryCache.TryGetValue(location, out Readings apiCache);
                 if (found && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds < _apiCachePeriod)
                 {
+                    apiCache.IsFromCache = true;
                     readings = apiCache;
                     return true;
                 }
@@ -106,19 +99,18 @@ namespace OpenWeatherMap.Cache
                         calcuatedTime: DateTimeOffset.FromUnixTimeSeconds(jObject["dt"].Value<long>()).UtcDateTime
                     );
 
-                    if (!found)
+                    if (!found || !apiCache.IsSuccessful || (newValue.FetchedTime > apiCache.FetchedTime && newValue.CalculatedTime >= apiCache.CalculatedTime))
                     {
-                        dictCache.TryAdd(location, newValue);
-                        readings = newValue;
-                    }
-                    else if (!apiCache.IsSuccessful || (newValue.FetchedTime > apiCache.FetchedTime && newValue.CalculatedTime >= apiCache.CalculatedTime))
-                    {
-                        dictCache.TryUpdate(location, newValue, apiCache);
+                        _memoryCache.Set(location, newValue, new MemoryCacheEntryOptions
+                        {
+                            SlidingExpiration = TimeSpan.FromMilliseconds(_resiliencyPeriod)
+                        });
                         readings = newValue;
                     }
                     else
                     {
                         // either readings are unchanged or reverted back to older values, so use the newer values in cache
+                        apiCache.IsFromCache = true;
                         readings = apiCache;
                     }
 
@@ -126,19 +118,14 @@ namespace OpenWeatherMap.Cache
                 }
                 catch
                 {
-                    if (found && apiCache.IsSuccessful && apiCache.CalculatedTime.AddMilliseconds(_resiliencyPeriod) >= dateTime)
+                    if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= _resiliencyPeriod)
                     {
+                        apiCache.IsFromCache = true;
                         readings = apiCache;
                         return true;
                     }
 
-                    var newValue = new Readings(dateTime);
-
-                    if (!found)
-                        dictCache.TryAdd(location, newValue);
-                    else if (apiCache != newValue)
-                        dictCache.TryUpdate(location, newValue, apiCache);
-                    readings = newValue;
+                    readings = new Readings(dateTime);
                     return false;
                 }
             }

@@ -28,6 +28,10 @@ namespace OpenWeatherMap.Cache.Models
         /// Indicates whether the <see cref="Readings"/> were successful or not.
         /// </summary>
         public bool IsSuccessful => !double.IsNaN(Temperature);
+        /// <summary>
+        /// Indicates whether the <see cref="Readings"/> were retrieved from cache or directly from the API.
+        /// </summary>
+        public bool IsFromCache { get; set; }
 
         internal Readings(double temperature, double humidity, double pressure, DateTime calcuatedTime)
         {
