@@ -4,14 +4,32 @@ namespace OpenWeatherMap.Cache.Models
 {
     public class Readings : IEquatable<Readings>
     {
+        /// <summary>
+        /// The temperature of the <see cref="Readings"/>.
+        /// </summary>
         public double Temperature { get; set; }
+        /// <summary>
+        /// The humidity of the <see cref="Readings"/>.
+        /// </summary>
         public double Humidity { get; set; }
+        /// <summary>
+        /// The pressure of the <see cref="Readings"/>.
+        /// </summary>
         public double Pressure { get; set; }
+        /// <summary>
+        /// The time the <see cref="Readings"/> object was fetched.
+        /// </summary>
         public DateTime FetchedTime { get; set; }
+        /// <summary>
+        /// The time the <see cref="Readings"/> data was updated by OpenWeatherMap.
+        /// </summary>
         public DateTime CalculatedTime { get; set; }
+        /// <summary>
+        /// Indicates whether the <see cref="Readings"/> were successful or not.
+        /// </summary>
         public bool IsSuccessful => !double.IsNaN(Temperature);
 
-        public Readings(double temperature, double humidity, double pressure, DateTime calcuatedTime)
+        internal Readings(double temperature, double humidity, double pressure, DateTime calcuatedTime)
         {
             Temperature = temperature;
             Humidity = humidity;
@@ -20,7 +38,7 @@ namespace OpenWeatherMap.Cache.Models
             FetchedTime = DateTime.UtcNow;
         }
 
-        public Readings(DateTime calculatedTime)
+        internal Readings(DateTime calculatedTime)
         {
             Temperature = double.NaN;
             Humidity = double.NaN;

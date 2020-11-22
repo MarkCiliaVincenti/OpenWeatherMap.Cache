@@ -4,10 +4,20 @@ namespace OpenWeatherMap.Cache.Models
 {
     public class Location
     {
-
+        /// <summary>
+        /// The latitude of the <see cref="Location"/>.
+        /// </summary>
         public double Latitude { get; set; }
+        /// <summary>
+        /// The longtitude of the <see cref="Location"/>.
+        /// </summary>
         public double Longtitude { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="Location"/>.
+        /// </summary>
+        /// <param name="latitude">The latitude of the location.</param>
+        /// <param name="longtitude">The longtitude of the location.</param>
         public Location(double latitude, double longtitude)
         {
             Latitude = latitude;

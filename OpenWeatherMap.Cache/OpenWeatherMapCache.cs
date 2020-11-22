@@ -15,29 +15,36 @@ namespace OpenWeatherMap.Cache
     }
     public class OpenWeatherMapCache : IOpenWeatherMapCache
     {
-        private const int defaultApiServerSyncPeriod = 600_000;
         private const int defaultResiliencyPeriod = 300_000;
 
         private readonly string _apiKey;
         private readonly int _apiCachePeriod;
-        private readonly int _apiServerSyncPeriod;
         private readonly int _resiliencyPeriod;
         private readonly object apiReadingsLock = new object();
         private ConcurrentDictionary<Location, Readings> dictCache = new ConcurrentDictionary<Location, Readings>(new Location.EqualityComparer());
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="OpenWeatherMapCache"/> with the default resiliency of 5 minutes.
+        /// </summary>
+        /// <param name="apiKey">The unique API key obtained from OpenWeatherMap.</param>
+        /// <param name="apiCachePeriod">The number of milliseconds to cache for.</param>
         public OpenWeatherMapCache(string apiKey, int apiCachePeriod)
         {
             _apiKey = apiKey;
             _apiCachePeriod = apiCachePeriod;
-            _apiServerSyncPeriod = defaultApiServerSyncPeriod;
             _resiliencyPeriod = defaultResiliencyPeriod;
         }
 
-        public OpenWeatherMapCache(string apiKey, int apiCachePeriod, int resiliencyPeriod, int apiServerSyncPeriod)
+        /// <summary>
+        /// Initializes a new instance of <see cref="OpenWeatherMapCache"/>.
+        /// </summary>
+        /// <param name="apiKey">The unique API key obtained from OpenWeatherMap.</param>
+        /// <param name="apiCachePeriod">The number of milliseconds to cache for.</param>
+        /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable.</param>
+        public OpenWeatherMapCache(string apiKey, int apiCachePeriod, int resiliencyPeriod)
         {
             _apiKey = apiKey;
             _apiCachePeriod = apiCachePeriod;
-            _apiServerSyncPeriod = apiServerSyncPeriod;
             _resiliencyPeriod = resiliencyPeriod;
         }
 
@@ -58,19 +65,20 @@ namespace OpenWeatherMap.Cache
             request.Timeout = 5000;
 
             using (var response = (HttpWebResponse)request.GetResponse())
-            // Get the stream associated with the response
-            using (Stream responseStream = response.GetResponseStream())
-            // Get a reader capable of reading the response stream
-            using (StreamReader myStreamReader = new StreamReader(responseStream, Encoding.UTF8))
-            {
-                // Read stream content as string
-                string responseJSON = myStreamReader.ReadToEnd();
-
-                return JObject.Parse(responseJSON);
-            }
-
+                using (Stream responseStream = response.GetResponseStream())
+                    using (StreamReader myStreamReader = new StreamReader(responseStream, Encoding.UTF8))
+                    {
+                        string responseJSON = myStreamReader.ReadToEnd();
+                        return JObject.Parse(responseJSON);
+                    }
         }
 
+        /// <summary>
+        /// Attempts to get the readings for the provided <see cref="OpenWeatherMap.Cache.Models.Location"/>.
+        /// </summary>
+        /// <param name="location">The <see cref="OpenWeatherMap.Cache.Models.Location"/> for which to get the readings.</param>
+        /// <param name="readings">When this method returns, contains the <see cref="OpenWeatherMap.Cache.Models.Readings"/> object for the provided location, or the default value if the operation failed.</param>
+        /// <returns>true if the operation was successful; otherwise, false.</returns>
         public bool TryGetReadings(Location location, out Readings readings)
         {
             lock (apiReadingsLock)
@@ -83,10 +91,8 @@ namespace OpenWeatherMap.Cache
                     return true;
                 }
 
-                // ... Endpoint
                 string apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longtitude}&appid={_apiKey}&units=metric&cache={Guid.NewGuid()}";
 
-                // ... Use HttpClient.
                 try
                 {
                     var jObject = GetJObjectFromUri(apiUrl);
