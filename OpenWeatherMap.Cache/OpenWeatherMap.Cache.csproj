@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>Mark Cilia Vincenti</Authors>
+    <RepositoryUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
