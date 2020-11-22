@@ -25,27 +25,6 @@ namespace OpenWeatherMap.Cache.Models
             Longtitude = longtitude;
         }
 
-        public class EqualityComparer : IEqualityComparer<Location>
-        {
-
-            public bool Equals(Location x, Location y)
-            {
-                return x.Latitude == y.Latitude && x.Longtitude == y.Longtitude;
-            }
-
-            public int GetHashCode(Location obj)
-            {
-                unchecked
-                {
-                    int hash = 17;
-
-                    hash = hash * 23 + obj.Latitude.GetHashCode();
-                    hash = hash * 23 + obj.Longtitude.GetHashCode();
-                    return hash;
-                }
-            }
-        }
-
         /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
         public bool Equals(Location other)
         {
@@ -63,10 +42,9 @@ namespace OpenWeatherMap.Cache.Models
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            unchecked // Overflow is fine, just wrap
+            unchecked
             {
                 int hash = 17;
-                // Suitable nullity checks etc, of course :)
                 hash = hash * 23 + Latitude.GetHashCode();
                 hash = hash * 23 + Longtitude.GetHashCode();
                 return hash;
