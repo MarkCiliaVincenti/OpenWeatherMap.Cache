@@ -9,7 +9,7 @@ namespace OpenWeatherMap.Cache.Tests
         [Fact]
         public void TestConcurrency()
         {
-            var openWeatherMapCache = new OpenWeatherMapCache("ad1b41288af1656b7f25d3cc5cc2ce80", 1000);
+            var openWeatherMapCache = new OpenWeatherMapCache("[API-Key]", 1000);
             int totalFromCache = 0;
             int totalFromAPI = 0;
 
