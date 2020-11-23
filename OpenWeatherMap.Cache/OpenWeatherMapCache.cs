@@ -1,23 +1,25 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OpenWeatherMap.Cache.Models;
 using System;
-using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Text;
-using System.Timers;
-using UnitsNet;
+using System.Text.Json;
 
 namespace OpenWeatherMap.Cache
 {
+    /// <summary>
+    /// Interface for <see cref="OpenWeatherMapCache"/>
+    /// </summary>
     public interface IOpenWeatherMapCache
     {
         /// <inheritdoc cref="OpenWeatherMapCache.TryGetReadings"/>
         bool TryGetReadings(Location location, out Readings readings);
     }
+    /// <summary>
+    /// Class for OpenWeatherMapCache
+    /// </summary>
     public class OpenWeatherMapCache : IOpenWeatherMapCache
     {
         private const int DefaultResiliencyPeriod = 300_000;
@@ -29,15 +31,14 @@ namespace OpenWeatherMap.Cache
         private readonly int _timeout;
         private readonly object apiReadingsLock = new object();
         private readonly MemoryCache _memoryCache;
-        //private readonly ConcurrentDictionary<Location, Readings> _dictCache = new ConcurrentDictionary<Location, Readings>(new Location.EqualityComparer());
 
         /// <summary>
         /// Initializes a new instance of <see cref="OpenWeatherMapCache"/>.
         /// </summary>
         /// <param name="apiKey">The unique API key obtained from OpenWeatherMap.</param>
         /// <param name="apiCachePeriod">The number of milliseconds to cache for.</param>
-        /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable.</param>
-        /// <param name="timeout">The number of milliseconds for the <see cref="WebRequest"/> timeout.</param>
+        /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable. Default 5 minutes.</param>
+        /// <param name="timeout">The number of milliseconds for the <see cref="WebRequest"/> timeout. Default 5 seconds.</param>
         public OpenWeatherMapCache(string apiKey, int apiCachePeriod, int resiliencyPeriod = DefaultResiliencyPeriod, int timeout = DefaultTimeout)
         {
             _apiKey = apiKey;
@@ -68,7 +69,7 @@ namespace OpenWeatherMap.Cache
             using (StreamReader myStreamReader = new StreamReader(responseStream, Encoding.UTF8))
             {
                 string responseJSON = myStreamReader.ReadToEnd();
-                return JsonConvert.DeserializeObject<ApiWeatherResult>(responseJSON);
+                return JsonSerializer.Deserialize<ApiWeatherResult>(responseJSON);
             }
         }
 

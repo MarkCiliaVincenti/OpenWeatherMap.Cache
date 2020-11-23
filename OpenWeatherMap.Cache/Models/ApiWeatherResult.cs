@@ -1,145 +1,145 @@
-﻿using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace OpenWeatherMap.Cache.Models
 {
     internal class ApiWeatherResult
     {
-        [JsonProperty("coord")]
+        [JsonPropertyName("coord")]
         public ApiCoord Coord { get; set; }
         internal class ApiCoord
         {
-            [JsonProperty("lon")]
+            [JsonPropertyName("lon")]
             public float Lon { get; set; }
-            [JsonProperty("lat")]
+            [JsonPropertyName("lat")]
             public float Lat { get; set; }
         }
 
-        [JsonProperty("weather")]
+        [JsonPropertyName("weather")]
         public IEnumerable<ApiWeather> Weather { get; set; }
         internal class ApiWeather
         {
-            [JsonProperty("id")]
+            [JsonPropertyName("id")]
             public int Id { get; set; }
 
-            [JsonProperty("main")]
+            [JsonPropertyName("main")]
             public string Main { get; set; }
 
-            [JsonProperty("description")]
+            [JsonPropertyName("description")]
             public string Description { get; set; }
 
-            [JsonProperty("icon")]
+            [JsonPropertyName("icon")]
             public string Icon { get; set; }
         }
 
-        [JsonProperty("base")]
+        [JsonPropertyName("base")]
         public string Base { get; set; }
 
-        [JsonProperty("main")]
+        [JsonPropertyName("main")]
         public ApiMain Main { get; set; }
         internal class ApiMain
         {
-            [JsonProperty("temp")]
+            [JsonPropertyName("temp")]
             public float Temp { get; set; }
 
-            [JsonProperty("feels_like")]
+            [JsonPropertyName("feels_like")]
             public float FeelsLike { get; set; }
 
-            [JsonProperty("temp_min")]
+            [JsonPropertyName("temp_min")]
             public float TempMin { get; set; }
 
-            [JsonProperty("temp_max")]
+            [JsonPropertyName("temp_max")]
             public float TempMax { get; set; }
 
-            [JsonProperty("pressure")]
+            [JsonPropertyName("pressure")]
             public int Pressure { get; set; }
 
-            [JsonProperty("humidity")]
+            [JsonPropertyName("humidity")]
             public int Humidity { get; set; }
 
-            [JsonProperty("sea_level")]
+            [JsonPropertyName("sea_level")]
             public int? SeaLevel { get; set; }
 
-            [JsonProperty("grnd_level")]
+            [JsonPropertyName("grnd_level")]
             public int? GrndLevel { get; set; }
         }
 
-        [JsonProperty("visibility")]
+        [JsonPropertyName("visibility")]
         public int Visibility { get; set; }
 
-        [JsonProperty("wind")]
+        [JsonPropertyName("wind")]
         public ApiWind Wind { get; set; }
         internal class ApiWind
         {
-            [JsonProperty("speed")]
+            [JsonPropertyName("speed")]
             public float Speed { get; set; }
 
-            [JsonProperty("deg")]
+            [JsonPropertyName("deg")]
             public float Deg { get; set; }
 
-            [JsonProperty("gust")]
+            [JsonPropertyName("gust")]
             public float? Gust { get; set; }
         }
 
-        [JsonProperty("clouds")]
+        [JsonPropertyName("clouds")]
         public ApiClouds Clouds { get; set; }
         internal class ApiClouds
         {
-            [JsonProperty("all")]
+            [JsonPropertyName("all")]
             public int All { get; set; }
         }
 
-        [JsonProperty("rain")]
+        [JsonPropertyName("rain")]
         public ApiVolume Rain { get; set; }
 
-        [JsonProperty("snow")]
+        [JsonPropertyName("snow")]
         public ApiVolume Snow { get; set; }
 
         internal class ApiVolume
         {
-            [JsonProperty("1h")]
+            [JsonPropertyName("1h")]
             public float OneHour { get; set; }
 
-            [JsonProperty("3h")]
+            [JsonPropertyName("3h")]
             public float ThreeHours { get; set; }
         }
 
-        [JsonProperty("dt")]
+        [JsonPropertyName("dt")]
         public long Dt { get; set; }
 
-        [JsonProperty("sys")]
+        [JsonPropertyName("sys")]
         public ApiSys Sys { get; set; }
         internal class ApiSys
         {
-            [JsonProperty("type")]
+            [JsonPropertyName("type")]
             public int? Type { get; set; }
 
-            [JsonProperty("id")]
+            [JsonPropertyName("id")]
             public int? Id { get; set; }
 
-            [JsonProperty("message")]
+            [JsonPropertyName("message")]
             public double? Message { get; set; }
 
-            [JsonProperty("country")]
+            [JsonPropertyName("country")]
             public string Country { get; set; }
 
-            [JsonProperty("sunrise")]
+            [JsonPropertyName("sunrise")]
             public long Sunrise { get; set; }
             
-            [JsonProperty("sunset")]
+            [JsonPropertyName("sunset")]
             public long Sunset { get; set; }
         }
 
-        [JsonProperty("timezone")]
+        [JsonPropertyName("timezone")]
         public int Timezone { get; set; }
 
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public int Id { get; set; }
 
-        [JsonProperty("name")]
+        [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonProperty("cod")]
+        [JsonPropertyName("cod")]
         public int Cod { get; set; }
     }
 }
