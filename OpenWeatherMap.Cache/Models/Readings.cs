@@ -1,54 +1,224 @@
 ﻿using System;
+using System.Collections.Generic;
+using UnitsNet;
 
 namespace OpenWeatherMap.Cache.Models
 {
+    /// <summary>
+    /// Class for weather conditions
+    /// </summary>
+    public class WeatherCondition : IEquatable<WeatherCondition>
+    {
+        /// <summary>
+        /// Weather condition id
+        /// </summary>
+        public int ConditionId { get; set; }
+        /// <summary>
+        /// Group of weather parameters (Rain, Snow, Extreme etc.)
+        /// </summary>
+        public string Main { get; set; }
+        /// <summary>
+        /// Weather condition within the group.
+        /// </summary>
+        public string Description { get; set; }
+        /// <summary>
+        /// Weather icon id
+        /// </summary>
+        public string IconId { get; set; }
+
+        /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
+        public bool Equals(WeatherCondition other)
+        {
+            if (other == null)
+                return false;
+            return ConditionId.Equals(other.ConditionId);
+        }
+
+        /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
+        public override bool Equals(object obj)
+        {
+            return obj is WeatherCondition other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + ConditionId.GetHashCode();
+                return hash;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Class for readings
+    /// </summary>
     public class Readings : IEquatable<Readings>
     {
         /// <summary>
+        /// Weather conditions
+        /// </summary>
+        public List<WeatherCondition> Weather { get; set; }
+        /// <summary>
         /// The temperature of the <see cref="Readings"/>.
         /// </summary>
-        public double Temperature { get; set; }
+        public Temperature Temperature { get; set; }
         /// <summary>
-        /// The humidity of the <see cref="Readings"/>.
+        /// Temperature. This temperature parameter accounts for the human perception of weather.
         /// </summary>
-        public double Humidity { get; set; }
+        public Temperature FeelsLike { get; set; }
         /// <summary>
         /// The pressure of the <see cref="Readings"/>.
         /// </summary>
-        public double Pressure { get; set; }
+        public Pressure Pressure { get; set; }
         /// <summary>
-        /// The time the <see cref="Readings"/> object was fetched.
+        /// The humidity of the <see cref="Readings"/>.
+        /// </summary>
+        public Ratio Humidity { get; set; }
+        /// <summary>
+        /// Minimum temperature at the moment. This is minimal currently observed temperature (within large megalopolises and urban areas).
+        /// </summary>
+        public Temperature MinimumTemperature { get; set; }
+        /// <summary>
+        /// Maximum temperature at the moment. This is maximal currently observed temperature (within large megalopolises and urban areas).
+        /// </summary>
+        public Temperature MaximumTemperature { get; set; }
+        /// <summary>
+        /// Atmospheric pressure at sea level
+        /// </summary>
+        public Pressure? SeaLevelPressure { get; set; }
+        /// <summary>
+        /// Atmospheric pressure at ground level
+        /// </summary>
+        public Pressure? GroundLevelPressure { get; set; }
+        /// <summary>
+        /// Wind speed
+        /// </summary>
+        public Speed WindSpeed { get; set; }
+        /// <summary>
+        /// Wind direction
+        /// </summary>
+        public Angle WindDirection { get; set; }
+        /// <summary>
+        /// Wind gust
+        /// </summary>
+        public Speed? WindGust { get; set; }
+        /// <summary>
+        /// Cloudiness
+        /// </summary>
+        public Ratio Cloudiness { get; set; }
+        /// <summary>
+        /// Rainfall in the last hour
+        /// </summary>
+        public Length? RainfallLastHour { get; set; }
+        /// <summary>
+        /// Rainfall in the last three hours
+        /// </summary>
+        public Length? RainfallLastThreeHours { get; set; }
+        /// <summary>
+        /// Snowfall in the last hour
+        /// </summary>
+        public Length? SnowfallLastHour { get; set; }
+        /// <summary>
+        /// Snowfall in the last three hours
+        /// </summary>
+        public Length? SnowfallLastThreeHours { get; set; }
+        /// <summary>
+        /// Two-letter country code
+        /// </summary>
+        public string CountryCode { get; set; }
+        /// <summary>
+        /// The sunrise time in UTC
+        /// </summary>
+        public DateTime Sunrise { get; set; }
+        /// <summary>
+        /// The sunset time in UTC
+        /// </summary>
+        public DateTime Sunset { get; set; }
+        /// <summary>
+        /// The offset for the time zone from UTC
+        /// </summary>
+        public TimeSpan TimeZoneOffset { get; set; }
+        /// <summary>
+        /// The city id
+        /// </summary>
+        public int CityId { get; set; }
+        /// <summary>
+        /// The city name
+        /// </summary>
+        public string CityName { get; set; }
+        /// <summary>
+        /// The time the <see cref="Readings"/> object was fetched, in UTC.
         /// </summary>
         public DateTime FetchedTime { get; set; }
         /// <summary>
-        /// The time the <see cref="Readings"/> data was updated by OpenWeatherMap.
+        /// The time the <see cref="Readings"/> data was updated by OpenWeatherMap, in UTC.
         /// </summary>
-        public DateTime CalculatedTime { get; set; }
+        public DateTime MeasuredTime { get; set; }
         /// <summary>
         /// Indicates whether the <see cref="Readings"/> were successful or not.
         /// </summary>
-        public bool IsSuccessful => !double.IsNaN(Temperature);
+        public bool IsSuccessful { get; set; }
         /// <summary>
         /// Indicates whether the <see cref="Readings"/> were retrieved from cache or directly from the API.
         /// </summary>
         public bool IsFromCache { get; set; }
 
-        internal Readings(double temperature, double humidity, double pressure, DateTime calcuatedTime)
+        internal Readings(ApiWeatherResult apiWeatherResult)
         {
-            Temperature = temperature;
-            Humidity = humidity;
-            Pressure = pressure;
-            CalculatedTime = calcuatedTime;
+            Weather = new List<WeatherCondition>();
+            foreach (var weather in apiWeatherResult.Weather)
+            {
+                Weather.Add(new WeatherCondition
+                {
+                    ConditionId = weather.Id,
+                    Main = weather.Main,
+                    Description = weather.Description,
+                    IconId = weather.Icon
+                });
+            }
+            Temperature = Temperature.FromKelvins(apiWeatherResult.Main.Temp);
+            FeelsLike = Temperature.FromKelvins(apiWeatherResult.Main.FeelsLike);
+            Pressure = Pressure.FromHectopascals(apiWeatherResult.Main.Pressure);
+            Humidity = Ratio.FromPercent(apiWeatherResult.Main.Humidity);
+            MinimumTemperature = Temperature.FromKelvins(apiWeatherResult.Main.TempMin);
+            MaximumTemperature = Temperature.FromKelvins(apiWeatherResult.Main.TempMax);
+            if (apiWeatherResult.Main.SeaLevel.HasValue)
+                SeaLevelPressure = Pressure.FromHectopascals(apiWeatherResult.Main.SeaLevel.Value);
+            if (apiWeatherResult.Main.GrndLevel.HasValue)
+                GroundLevelPressure = Pressure.FromHectopascals(apiWeatherResult.Main.GrndLevel.Value);
+            WindSpeed = Speed.FromMetersPerSecond(apiWeatherResult.Wind.Speed);
+            WindDirection = Angle.FromDegrees(apiWeatherResult.Wind.Deg);
+            if (apiWeatherResult.Wind.Gust.HasValue)
+                WindGust = Speed.FromMetersPerSecond(apiWeatherResult.Wind.Gust.Value);
+            Cloudiness = Ratio.FromPercent(apiWeatherResult.Clouds.All);
+            if (apiWeatherResult.Rain != null)
+            {
+                RainfallLastHour = Length.FromMillimeters(apiWeatherResult.Rain.OneHour);
+                RainfallLastThreeHours = Length.FromMillimeters(apiWeatherResult.Rain.ThreeHours);
+            }
+            if (apiWeatherResult.Snow != null)
+            {
+                SnowfallLastHour = Length.FromMillimeters(apiWeatherResult.Snow.OneHour);
+                SnowfallLastThreeHours = Length.FromMillimeters(apiWeatherResult.Snow.ThreeHours);
+            }
+            MeasuredTime = DateTimeOffset.FromUnixTimeSeconds(apiWeatherResult.Dt).UtcDateTime;
+            CountryCode = apiWeatherResult.Sys.Country;
+            Sunrise = DateTimeOffset.FromUnixTimeSeconds(apiWeatherResult.Sys.Sunrise).UtcDateTime;
+            Sunset = DateTimeOffset.FromUnixTimeSeconds(apiWeatherResult.Sys.Sunset).UtcDateTime;
+            TimeZoneOffset = TimeSpan.FromSeconds(apiWeatherResult.Timezone);
+            CityId = apiWeatherResult.Id;
+            CityName = apiWeatherResult.Name;
             FetchedTime = DateTime.UtcNow;
+            IsSuccessful = true;
         }
 
-        internal Readings(DateTime calculatedTime)
+        internal Readings()
         {
-            Temperature = double.NaN;
-            Humidity = double.NaN;
-            Pressure = double.NaN;
-            CalculatedTime = calculatedTime;
             FetchedTime = DateTime.UtcNow;
+            IsSuccessful = false;
         }
 
         /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
@@ -56,7 +226,7 @@ namespace OpenWeatherMap.Cache.Models
         {
             if (other == null)
                 return false;
-            return CalculatedTime.Equals(other.CalculatedTime) && Temperature.Equals(other.Temperature) && Humidity.Equals(other.Humidity) && Pressure.Equals(other.Pressure);
+            return FetchedTime.Equals(other.FetchedTime) && MeasuredTime.Equals(other.MeasuredTime);
         }
 
         /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
@@ -68,13 +238,11 @@ namespace OpenWeatherMap.Cache.Models
         /// <inheritdoc />
         public override int GetHashCode()
         {
-            unchecked // Overflow is fine, just wrap
+            unchecked
             {
                 int hash = 17;
-                // Suitable nullity checks etc, of course :)
-                hash = hash * 23 + Temperature.GetHashCode();
-                hash = hash * 23 + Humidity.GetHashCode();
-                hash = hash * 23 + Pressure.GetHashCode();
+                hash = hash * 23 + FetchedTime.GetHashCode();
+                hash = hash * 23 + MeasuredTime.GetHashCode();
                 return hash;
             }
         }

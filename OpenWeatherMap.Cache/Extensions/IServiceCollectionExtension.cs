@@ -2,6 +2,9 @@
 
 namespace OpenWeatherMap.Cache.Extensions
 {
+    /// <summary>
+    /// Extension class for <see cref="IServiceCollection"/>.
+    /// </summary>
     public static class IServiceCollectionExtension
     {
         /// <summary>

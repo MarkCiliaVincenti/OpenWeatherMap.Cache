@@ -1,5 +1,5 @@
 # OpenWeatherMap.Cache
-A library that allows you to cache temperature, humidity and pressure readings for [OpenWeatherMap](https://openweathermap.org/), with in-built resiliency that can extend the cache lifetime.
+A .NET Standard library that allows you to fetch & cache current weather readings for [OpenWeatherMap](https://openweathermap.org/), with in-built resiliency that can extend the cache lifetime.
 
 ## Initialization with Dependency Injection
 In your Startup.cs (ConfigureServices):

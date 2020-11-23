@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace OpenWeatherMap.Cache.Models
 {
+    /// <summary>
+    /// Class for the location with latitude and longtitude.
+    /// </summary>
     public class Location : IEquatable<Location>
     {
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OpenWeatherMap.Cache.Models;
 using System;
@@ -8,6 +9,7 @@ using System.Net;
 using System.Net.Cache;
 using System.Text;
 using System.Timers;
+using UnitsNet;
 
 namespace OpenWeatherMap.Cache
 {
@@ -19,10 +21,12 @@ namespace OpenWeatherMap.Cache
     public class OpenWeatherMapCache : IOpenWeatherMapCache
     {
         private const int DefaultResiliencyPeriod = 300_000;
+        private const int DefaultTimeout = 5_000;
 
         private readonly string _apiKey;
         private readonly int _apiCachePeriod;
         private readonly int _resiliencyPeriod;
+        private readonly int _timeout;
         private readonly object apiReadingsLock = new object();
         private readonly MemoryCache _memoryCache;
         //private readonly ConcurrentDictionary<Location, Readings> _dictCache = new ConcurrentDictionary<Location, Readings>(new Location.EqualityComparer());
@@ -33,15 +37,17 @@ namespace OpenWeatherMap.Cache
         /// <param name="apiKey">The unique API key obtained from OpenWeatherMap.</param>
         /// <param name="apiCachePeriod">The number of milliseconds to cache for.</param>
         /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable.</param>
-        public OpenWeatherMapCache(string apiKey, int apiCachePeriod, int resiliencyPeriod = DefaultResiliencyPeriod)
+        /// <param name="timeout">The number of milliseconds for the <see cref="WebRequest"/> timeout.</param>
+        public OpenWeatherMapCache(string apiKey, int apiCachePeriod, int resiliencyPeriod = DefaultResiliencyPeriod, int timeout = DefaultTimeout)
         {
             _apiKey = apiKey;
             _apiCachePeriod = apiCachePeriod;
             _resiliencyPeriod = resiliencyPeriod;
+            _timeout = timeout;
             _memoryCache = new MemoryCache(new MemoryCacheOptions());
         }
 
-        private JObject GetJObjectFromUri(string uri)
+        private ApiWeatherResult GetApiWeatherResultFromUri(string uri, int timeout)
         {
             var request = WebRequest.CreateHttp(uri);
             request.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
@@ -55,15 +61,15 @@ namespace OpenWeatherMap.Cache
             request.ProtocolVersion = new Version(1, 1);
             request.UserAgent = null;
             request.Method = "GET";
-            request.Timeout = 5000;
+            request.Timeout = timeout;
 
             using (var response = (HttpWebResponse)request.GetResponse())
-                using (Stream responseStream = response.GetResponseStream())
-                    using (StreamReader myStreamReader = new StreamReader(responseStream, Encoding.UTF8))
-                    {
-                        string responseJSON = myStreamReader.ReadToEnd();
-                        return JObject.Parse(responseJSON);
-                    }
+            using (Stream responseStream = response.GetResponseStream())
+            using (StreamReader myStreamReader = new StreamReader(responseStream, Encoding.UTF8))
+            {
+                string responseJSON = myStreamReader.ReadToEnd();
+                return JsonConvert.DeserializeObject<ApiWeatherResult>(responseJSON);
+            }
         }
 
         /// <summary>
@@ -85,21 +91,14 @@ namespace OpenWeatherMap.Cache
                     return true;
                 }
 
-                string apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longtitude}&appid={_apiKey}&units=metric&cache={Guid.NewGuid()}";
+                string apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longtitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
 
                 try
                 {
-                    var jObject = GetJObjectFromUri(apiUrl);
-                    var jToken = jObject["main"];
+                    var apiWeatherResult = GetApiWeatherResultFromUri(apiUrl, _timeout);
+                    var newValue = new Readings(apiWeatherResult);
 
-                    var newValue = new Readings(
-                        temperature: jToken["temp"].Value<double>(),
-                        humidity: jToken["humidity"].Value<double>(),
-                        pressure: jToken["pressure"].Value<double>(),
-                        calcuatedTime: DateTimeOffset.FromUnixTimeSeconds(jObject["dt"].Value<long>()).UtcDateTime
-                    );
-
-                    if (!found || !apiCache.IsSuccessful || (newValue.FetchedTime > apiCache.FetchedTime && newValue.CalculatedTime >= apiCache.CalculatedTime))
+                    if (!found || !apiCache.IsSuccessful || (newValue.FetchedTime > apiCache.FetchedTime && newValue.MeasuredTime >= apiCache.MeasuredTime))
                     {
                         _memoryCache.Set(location, newValue, new MemoryCacheEntryOptions
                         {
@@ -125,7 +124,7 @@ namespace OpenWeatherMap.Cache
                         return true;
                     }
 
-                    readings = new Readings(dateTime);
+                    readings = new Readings();
                     return false;
                 }
             }

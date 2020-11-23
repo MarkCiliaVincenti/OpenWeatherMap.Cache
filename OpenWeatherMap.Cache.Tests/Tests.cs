@@ -15,7 +15,7 @@ namespace OpenWeatherMap.Cache.Tests
 
             var result = Parallel.For(1, 101, (i, state) =>
             {
-                var location = new Models.Location(1, 1);
+                var location = new Models.Location(48.6371, -122.1237);
                 openWeatherMapCache.TryGetReadings(location, out var readings);
                 if (readings.IsFromCache)
                     Interlocked.Increment(ref totalFromCache);
