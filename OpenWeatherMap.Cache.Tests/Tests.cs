@@ -16,7 +16,7 @@ namespace OpenWeatherMap.Cache.Tests
             var result = Parallel.For(1, 101, (i, state) =>
             {
                 var location = new Models.Location(48.6371, -122.1237);
-                openWeatherMapCache.TryGetReadings(location, out var readings);
+                var readings = openWeatherMapCache.GetReadingsAsync(location).Result;
                 if (readings.IsFromCache)
                     Interlocked.Increment(ref totalFromCache);
                 else
@@ -26,12 +26,12 @@ namespace OpenWeatherMap.Cache.Tests
             Assert.Equal(99, totalFromCache);
             Assert.Equal(1, totalFromAPI);
 
-            Thread.Sleep(1000);
+            Thread.Sleep(1001);
 
             result = Parallel.For(1, 101, (i, state) =>
             {
                 var location = new Models.Location(1, 1);
-                openWeatherMapCache.TryGetReadings(location, out var readings);
+                var readings = openWeatherMapCache.GetReadingsAsync(location).Result;
                 if (readings.IsFromCache)
                     Interlocked.Increment(ref totalFromCache);
                 else
