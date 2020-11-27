@@ -1,13 +1,11 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using OpenWeatherMap.Cache.Constants;
+using OpenWeatherMap.Cache.Helpers;
 using OpenWeatherMap.Cache.Models;
 using System;
-using System.IO;
 using System.Net;
 using System.Net.Cache;
-using System.Text;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace OpenWeatherMap.Cache
@@ -30,7 +28,7 @@ namespace OpenWeatherMap.Cache
         private readonly int _resiliencyPeriod;
         private readonly int _timeout;
         private readonly MemoryCache _memoryCache;
-        private readonly SemaphoreSlim _apiReadingsSemaphoreSlim = new SemaphoreSlim(1, 1);
+        private readonly AsyncDuplicateLock _asyncDuplicateLock;
 
         /// <summary>
         /// Initializes a new instance of <see cref="OpenWeatherMapCache"/>.
@@ -46,6 +44,7 @@ namespace OpenWeatherMap.Cache
             _resiliencyPeriod = resiliencyPeriod;
             _timeout = timeout;
             _memoryCache = new MemoryCache(new MemoryCacheOptions());
+            _asyncDuplicateLock = new AsyncDuplicateLock();
         }
 
         private async Task<ApiWeatherResult> GetApiWeatherResultFromUri(string uri, int timeout)
@@ -75,13 +74,13 @@ namespace OpenWeatherMap.Cache
         /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
         public async Task<Readings> GetReadingsAsync(Location location)
         {
-            _apiReadingsSemaphoreSlim.Wait();
+            var lockObj = _asyncDuplicateLock.Lock(location);
 
             var dateTime = DateTime.UtcNow;
             var found = _memoryCache.TryGetValue(location, out Readings apiCache);
             if (found && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds < _apiCachePeriod)
             {
-                _apiReadingsSemaphoreSlim.Release();
+                lockObj.Dispose();
                 apiCache.IsFromCache = true;
                 return apiCache;
             }
@@ -99,12 +98,12 @@ namespace OpenWeatherMap.Cache
                     {
                         SlidingExpiration = TimeSpan.FromMilliseconds(_resiliencyPeriod)
                     });
-                    _apiReadingsSemaphoreSlim.Release();
+                    lockObj.Dispose();
                     return newValue;
                 }
                 else
                 {
-                    _apiReadingsSemaphoreSlim.Release();
+                    lockObj.Dispose();
                     // either readings are unchanged or reverted back to older values, so use the newer values in cache
                     apiCache.IsFromCache = true;
                     return apiCache;
@@ -112,7 +111,7 @@ namespace OpenWeatherMap.Cache
             }
             catch
             {
-                _apiReadingsSemaphoreSlim.Release();
+                lockObj.Dispose();
                 if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= _resiliencyPeriod)
                 {
                     apiCache.IsFromCache = true;
