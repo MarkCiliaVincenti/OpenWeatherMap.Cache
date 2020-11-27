@@ -74,7 +74,7 @@ namespace OpenWeatherMap.Cache
         /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
         public async Task<Readings> GetReadingsAsync(Location location)
         {
-            var lockObj = _asyncDuplicateLock.Lock(location);
+            var lockObj = await _asyncDuplicateLock.LockAsync(location);
 
             var dateTime = DateTime.UtcNow;
             var found = _memoryCache.TryGetValue(location, out Readings apiCache);
@@ -91,6 +91,7 @@ namespace OpenWeatherMap.Cache
             {
                 var apiWeatherResult = await GetApiWeatherResultFromUri(apiUrl, _timeout);
                 var newValue = new Readings(apiWeatherResult);
+                newValue.IsFromCache = false;
 
                 if (!found || !apiCache.IsSuccessful || (newValue.FetchedTime > apiCache.FetchedTime && newValue.MeasuredTime >= apiCache.MeasuredTime))
                 {
