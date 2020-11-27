@@ -1,6 +1,9 @@
 # OpenWeatherMap.Cache
 An asynchronous .NET Standard library that allows you to fetch & cache current weather readings for [OpenWeatherMap](https://openweathermap.org/), with in-built resiliency that can extend the cache lifetime.
 
+## Installation
+The recommended means is to use [NuGet](https://www.nuget.org/packages/OpenWeatherMap.Cache).
+
 ## Initialization with Dependency Injection
 In your Startup.cs (ConfigureServices):
 ```c#
