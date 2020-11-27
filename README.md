@@ -18,7 +18,7 @@ Create your own instance:
 var openWeatherMapCache = new OpenWeatherMapCache("[API KEY]", 9_500, 300_000);
 ```
 
-## Usage in async methods (recommended)
+## Usage in asynchronous methods (recommended)
 ```c#
 var location = new OpenWeatherMap.Cache.Location(47.6371, -122.1237);
 var readings = await openWeatherMapCache.GetReadingsAsync(location);
@@ -28,7 +28,7 @@ if (readings.IsSuccessful)
 }
 ```
 
-## Usage in non-async methods
+## Usage in synchronous methods
 ```c#
 var location = new OpenWeatherMap.Cache.Location(47.6371, -122.1237);
 var readings = openWeatherMapCache.GetReadingsAsync(location).Result;
