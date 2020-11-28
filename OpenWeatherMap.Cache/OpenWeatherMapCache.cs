@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Cache;
 using System.Text.Json;
 using System.Threading.Tasks;
+using static OpenWeatherMap.Cache.Enums;
 
 namespace OpenWeatherMap.Cache
 {
@@ -25,6 +26,7 @@ namespace OpenWeatherMap.Cache
     {
         private readonly string _apiKey;
         private readonly int _apiCachePeriod;
+        private readonly FetchMode _fetchMode;
         private readonly int _resiliencyPeriod;
         private readonly int _timeout;
         private readonly MemoryCache _memoryCache;
@@ -35,12 +37,14 @@ namespace OpenWeatherMap.Cache
         /// </summary>
         /// <param name="apiKey">The unique API key obtained from OpenWeatherMap.</param>
         /// <param name="apiCachePeriod">The number of milliseconds to cache for.</param>
+        /// <param name="fetchMode">The mode of operation. Defaults to <see cref="FetchMode.AlwaysUseLastMeasuredButExtendCache"/>.</param>
         /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod"/>.</param>
         /// <param name="timeout">The number of milliseconds for the <see cref="WebRequest"/> timeout. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultTimeout"/>.</param>
-        public OpenWeatherMapCache(string apiKey, int apiCachePeriod, int resiliencyPeriod = OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod, int timeout = OpenWeatherMapCacheDefaults.DefaultTimeout)
+        public OpenWeatherMapCache(string apiKey, int apiCachePeriod, FetchMode fetchMode = FetchMode.AlwaysUseLastMeasuredButExtendCache, int resiliencyPeriod = OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod, int timeout = OpenWeatherMapCacheDefaults.DefaultTimeout)
         {
             _apiKey = apiKey;
             _apiCachePeriod = apiCachePeriod;
+            _fetchMode = fetchMode;
             _resiliencyPeriod = resiliencyPeriod;
             _timeout = timeout;
             _memoryCache = new MemoryCache(new MemoryCacheOptions());
@@ -78,11 +82,17 @@ namespace OpenWeatherMap.Cache
 
             var dateTime = DateTime.UtcNow;
             var found = _memoryCache.TryGetValue(location, out Readings apiCache);
-            if (found && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds < _apiCachePeriod)
+
+            if (found)
             {
-                lockObj.Dispose();
-                apiCache.IsFromCache = true;
-                return apiCache;
+                var timeElapsed = dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds;
+                if (timeElapsed <= _apiCachePeriod)
+                {
+                    lockObj.Dispose();
+                    apiCache.IsFromCache = true;
+                    apiCache.ApiRequestMade = false;
+                    return apiCache;
+                }
             }
 
             string apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longtitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
@@ -93,33 +103,43 @@ namespace OpenWeatherMap.Cache
                 var newValue = new Readings(apiWeatherResult);
                 newValue.IsFromCache = false;
 
-                if (!found || !apiCache.IsSuccessful || (newValue.FetchedTime > apiCache.FetchedTime && newValue.MeasuredTime >= apiCache.MeasuredTime))
+                if (!found || !apiCache.IsSuccessful || _fetchMode == FetchMode.AlwaysUseLastFetchedValue || (newValue.MeasuredTime >= apiCache.MeasuredTime))
                 {
                     _memoryCache.Set(location, newValue, new MemoryCacheEntryOptions
                     {
-                        SlidingExpiration = TimeSpan.FromMilliseconds(_resiliencyPeriod)
+                        AbsoluteExpiration = newValue.FetchedTime.AddMilliseconds(_resiliencyPeriod)
                     });
                     lockObj.Dispose();
+                    newValue.ApiRequestMade = true;
                     return newValue;
                 }
                 else
                 {
+                    if (_fetchMode == FetchMode.AlwaysUseLastMeasuredButExtendCache)
+                    {
+                        apiCache.FetchedTime = newValue.FetchedTime;
+                        _memoryCache.Set(location, apiCache, new MemoryCacheEntryOptions
+                        {
+                            AbsoluteExpiration = apiCache.FetchedTime.AddMilliseconds(_resiliencyPeriod)
+                        });
+                    }
                     lockObj.Dispose();
-                    // either readings are unchanged or reverted back to older values, so use the newer values in cache
                     apiCache.IsFromCache = true;
+                    apiCache.ApiRequestMade = true;
                     return apiCache;
                 }
             }
-            catch
+            catch (Exception exception)
             {
                 lockObj.Dispose();
                 if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= _resiliencyPeriod)
                 {
                     apiCache.IsFromCache = true;
+                    apiCache.ApiRequestMade = false;
                     return apiCache;
                 }
 
-                return new Readings();
+                return new Readings(exception);
             }
         }
     }

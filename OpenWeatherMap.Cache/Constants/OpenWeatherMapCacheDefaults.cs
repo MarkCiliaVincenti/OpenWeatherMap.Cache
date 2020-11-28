@@ -1,5 +1,8 @@
 ﻿namespace OpenWeatherMap.Cache.Constants
 {
+    /// <summary>
+    /// Class for OpenWeatherMap.Cache defaults
+    /// </summary>
     public static class OpenWeatherMapCacheDefaults
     {
         /// <summary>

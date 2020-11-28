@@ -12,19 +12,19 @@ namespace OpenWeatherMap.Cache.Models
         /// <summary>
         /// Weather condition id
         /// </summary>
-        public int ConditionId { get; set; }
+        public int ConditionId { get; internal set; }
         /// <summary>
         /// Group of weather parameters (Rain, Snow, Extreme etc.)
         /// </summary>
-        public string Main { get; set; }
+        public string Main { get; internal set; }
         /// <summary>
         /// Weather condition within the group.
         /// </summary>
-        public string Description { get; set; }
+        public string Description { get; internal set; }
         /// <summary>
         /// Weather icon id
         /// </summary>
-        public string IconId { get; set; }
+        public string IconId { get; internal set; }
 
         /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
         public bool Equals(WeatherCondition other)
@@ -60,111 +60,116 @@ namespace OpenWeatherMap.Cache.Models
         /// <summary>
         /// Weather conditions
         /// </summary>
-        public List<WeatherCondition> Weather { get; set; }
+        public List<WeatherCondition> Weather { get; internal set; }
         /// <summary>
         /// The temperature of the <see cref="Readings"/>.
         /// </summary>
-        public Temperature Temperature { get; set; }
+        public Temperature Temperature { get; internal set; }
         /// <summary>
         /// Temperature. This temperature parameter accounts for the human perception of weather.
         /// </summary>
-        public Temperature FeelsLike { get; set; }
+        public Temperature FeelsLike { get; internal set; }
         /// <summary>
         /// The pressure of the <see cref="Readings"/>.
         /// </summary>
-        public Pressure Pressure { get; set; }
+        public Pressure Pressure { get; internal set; }
         /// <summary>
         /// The humidity of the <see cref="Readings"/>.
         /// </summary>
-        public Ratio Humidity { get; set; }
+        public Ratio Humidity { get; internal set; }
         /// <summary>
         /// Minimum temperature at the moment. This is minimal currently observed temperature (within large megalopolises and urban areas).
         /// </summary>
-        public Temperature MinimumTemperature { get; set; }
+        public Temperature MinimumTemperature { get; internal set; }
         /// <summary>
         /// Maximum temperature at the moment. This is maximal currently observed temperature (within large megalopolises and urban areas).
         /// </summary>
-        public Temperature MaximumTemperature { get; set; }
+        public Temperature MaximumTemperature { get; internal set; }
         /// <summary>
         /// Atmospheric pressure at sea level
         /// </summary>
-        public Pressure? SeaLevelPressure { get; set; }
+        public Pressure? SeaLevelPressure { get; internal set; }
         /// <summary>
         /// Atmospheric pressure at ground level
         /// </summary>
-        public Pressure? GroundLevelPressure { get; set; }
+        public Pressure? GroundLevelPressure { get; internal set; }
         /// <summary>
         /// Wind speed
         /// </summary>
-        public Speed WindSpeed { get; set; }
+        public Speed WindSpeed { get; internal set; }
         /// <summary>
         /// Wind direction
         /// </summary>
-        public Angle WindDirection { get; set; }
+        public Angle WindDirection { get; internal set; }
         /// <summary>
         /// Wind gust
         /// </summary>
-        public Speed? WindGust { get; set; }
+        public Speed? WindGust { get; internal set; }
         /// <summary>
         /// Cloudiness
         /// </summary>
-        public Ratio Cloudiness { get; set; }
+        public Ratio Cloudiness { get; internal set; }
         /// <summary>
         /// Rainfall in the last hour
         /// </summary>
-        public Length? RainfallLastHour { get; set; }
+        public Length? RainfallLastHour { get; internal set; }
         /// <summary>
         /// Rainfall in the last three hours
         /// </summary>
-        public Length? RainfallLastThreeHours { get; set; }
+        public Length? RainfallLastThreeHours { get; internal set; }
         /// <summary>
         /// Snowfall in the last hour
         /// </summary>
-        public Length? SnowfallLastHour { get; set; }
+        public Length? SnowfallLastHour { get; internal set; }
         /// <summary>
         /// Snowfall in the last three hours
         /// </summary>
-        public Length? SnowfallLastThreeHours { get; set; }
+        public Length? SnowfallLastThreeHours { get; internal set; }
         /// <summary>
         /// Two-letter country code
         /// </summary>
-        public string CountryCode { get; set; }
+        public string CountryCode { get; internal set; }
         /// <summary>
         /// The sunrise time in UTC
         /// </summary>
-        public DateTime Sunrise { get; set; }
+        public DateTime Sunrise { get; internal set; }
         /// <summary>
         /// The sunset time in UTC
         /// </summary>
-        public DateTime Sunset { get; set; }
+        public DateTime Sunset { get; internal set; }
         /// <summary>
         /// The offset for the time zone from UTC
         /// </summary>
-        public TimeSpan TimeZoneOffset { get; set; }
+        public TimeSpan TimeZoneOffset { get; internal set; }
         /// <summary>
         /// The city id
         /// </summary>
-        public int CityId { get; set; }
+        public int CityId { get; internal set; }
         /// <summary>
         /// The city name
         /// </summary>
-        public string CityName { get; set; }
+        public string CityName { get; internal set; }
         /// <summary>
         /// The time the <see cref="Readings"/> object was fetched, in UTC.
         /// </summary>
-        public DateTime FetchedTime { get; set; }
+        public DateTime FetchedTime { get; internal set; }
         /// <summary>
         /// The time the <see cref="Readings"/> data was updated by OpenWeatherMap, in UTC.
         /// </summary>
-        public DateTime MeasuredTime { get; set; }
+        public DateTime MeasuredTime { get; internal set; }
+        /// <summary>
+        /// The <see cref="System.Exception"/> that was thrown while getting the readings.
+        /// </summary>
+        public Exception Exception { get; internal set; }
         /// <summary>
         /// Indicates whether the <see cref="Readings"/> were successful or not.
         /// </summary>
-        public bool IsSuccessful { get; set; }
+        public bool IsSuccessful => (Exception == null);
         /// <summary>
         /// Indicates whether the <see cref="Readings"/> were retrieved from cache or directly from the API.
         /// </summary>
-        public bool IsFromCache { get; set; }
+        public bool IsFromCache { get; internal set; }
+        public bool ApiRequestMade { get; internal set; }
 
         internal Readings(ApiWeatherResult apiWeatherResult)
         {
@@ -212,13 +217,12 @@ namespace OpenWeatherMap.Cache.Models
             CityId = apiWeatherResult.Id;
             CityName = apiWeatherResult.Name;
             FetchedTime = DateTime.UtcNow;
-            IsSuccessful = true;
         }
 
-        internal Readings()
+        internal Readings(Exception exception)
         {
             FetchedTime = DateTime.UtcNow;
-            IsSuccessful = false;
+            Exception = exception;
         }
 
         /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
