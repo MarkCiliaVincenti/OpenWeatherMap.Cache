@@ -95,7 +95,7 @@ namespace OpenWeatherMap.Cache
                 }
             }
 
-            string apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longtitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
+            string apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
 
             try
             {
