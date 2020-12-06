@@ -5,6 +5,9 @@
     /// </summary>
     public class Enums
     {
+        /// <summary>
+        /// Enumeration for OpenWeatherMap.Cache
+        /// </summary>
         public enum FetchMode
         {
             /// <summary>

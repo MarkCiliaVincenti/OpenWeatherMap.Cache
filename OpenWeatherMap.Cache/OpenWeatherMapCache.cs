@@ -53,22 +53,54 @@ namespace OpenWeatherMap.Cache
 
         private async Task<ApiWeatherResult> GetApiWeatherResultFromUri(string uri, int timeout)
         {
-            var request = WebRequest.CreateHttp(uri);
-            request.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
-            request.AllowAutoRedirect = true;
-            request.CookieContainer = new CookieContainer();
-            request.AllowReadStreamBuffering = true;
-            request.Date = DateTime.UtcNow;
-            request.IfModifiedSince = DateTime.MinValue;
-            request.Accept = "application/json";
-            request.KeepAlive = false;
-            request.ProtocolVersion = new Version(1, 1);
-            request.UserAgent = null;
-            request.Method = "GET";
-            request.Timeout = timeout;
+            try
+            {
+                var request = WebRequest.CreateHttp(uri);
+                request.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
+                request.AllowAutoRedirect = true;
+                request.CookieContainer = new CookieContainer();
+                request.AllowReadStreamBuffering = true;
+                request.Date = DateTime.UtcNow;
+                request.IfModifiedSince = DateTime.MinValue;
+                request.Accept = "application/json";
+                request.KeepAlive = false;
+                request.ProtocolVersion = new Version(1, 1);
+                request.UserAgent = null;
+                request.Method = "GET";
+                request.Timeout = timeout;
+                request.ReadWriteTimeout = timeout;
 
-            using (var response = (HttpWebResponse)await request.GetResponseAsync())
-                return await JsonSerializer.DeserializeAsync<ApiWeatherResult>(response.GetResponseStream());
+                using (var response = (HttpWebResponse)await request.GetResponseAsync())
+                    return await JsonSerializer.DeserializeAsync<ApiWeatherResult>(response.GetResponseStream());
+            }
+            catch (WebException webException)
+            {
+                if (webException.Status == WebExceptionStatus.ProtocolError)
+                {
+                    ApiErrorResult errorResult;
+                    try
+                    {
+                        errorResult = await JsonSerializer.DeserializeAsync<ApiErrorResult>(webException.Response.GetResponseStream());
+                    }
+                    catch
+                    {
+                        throw new OpenWeatherMapCacheException("Could not deserialize JSON content");
+                    }
+                    throw new OpenWeatherMapCacheException(errorResult);
+                }
+                else
+                {
+                    throw new OpenWeatherMapCacheException(webException.Message);
+                }
+            }
+            catch (JsonException)
+            {
+                throw new OpenWeatherMapCacheException("Could not deserialize JSON content");
+            }
+            catch (Exception exception)
+            {
+                throw new OpenWeatherMapCacheException(exception.Message);
+            }
         }
 
         /// <summary>
@@ -129,7 +161,7 @@ namespace OpenWeatherMap.Cache
                     return apiCache;
                 }
             }
-            catch (Exception exception)
+            catch (OpenWeatherMapCacheException exception)
             {
                 lockObj.Dispose();
                 if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= _resiliencyPeriod)

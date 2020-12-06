@@ -6,9 +6,10 @@
     <RepositoryUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache</PackageProjectUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Version>1.3.1</Version>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/MarkCiliaVincenti/OpenWeatherMap.Cache/master/LICENSE</PackageLicenseUrl>
+    <Version>1.3.2</Version>
     <PackageIcon>logo.png</PackageIcon>
-    <PackageReleaseNotes>Fixed typo longtitude =&gt; longitude</PackageReleaseNotes>
+    <PackageReleaseNotes>Exception robustness. Readings.Exception is now of type OpenWeatherMapCacheException which contains the ApiErrorCode and ApiErrorMessage.</PackageReleaseNotes>
     <Description>An asynchronous .NET Standard library that allows you to fetch &amp; cache current weather readings from the OpenWeatherMap API, with in-built resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
     <Copyright>© 2020 Mark Cilia Vincenti</Copyright>
     <PackageTags>OpenWeather,OpenWeatherMap,cache,weather,API,.NET Standard,netstandard</PackageTags>

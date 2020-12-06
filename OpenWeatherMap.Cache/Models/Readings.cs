@@ -7,7 +7,8 @@ namespace OpenWeatherMap.Cache.Models
     /// <summary>
     /// Class for weather conditions
     /// </summary>
-    public class WeatherCondition : IEquatable<WeatherCondition>
+    [Serializable]
+    public sealed class WeatherCondition : IEquatable<WeatherCondition>
     {
         /// <summary>
         /// Weather condition id
@@ -55,7 +56,8 @@ namespace OpenWeatherMap.Cache.Models
     /// <summary>
     /// Class for readings
     /// </summary>
-    public class Readings : IEquatable<Readings>
+    [Serializable]
+    public sealed class Readings : IEquatable<Readings>
     {
         /// <summary>
         /// Weather conditions
@@ -158,9 +160,9 @@ namespace OpenWeatherMap.Cache.Models
         /// </summary>
         public DateTime MeasuredTime { get; internal set; }
         /// <summary>
-        /// The <see cref="System.Exception"/> that was thrown while getting the readings.
+        /// The <see cref="OpenWeatherMapCacheException"/> that was thrown while getting the readings.
         /// </summary>
-        public Exception Exception { get; internal set; }
+        public OpenWeatherMapCacheException Exception { get; internal set; }
         /// <summary>
         /// Indicates whether the <see cref="Readings"/> were successful or not.
         /// </summary>
@@ -169,6 +171,9 @@ namespace OpenWeatherMap.Cache.Models
         /// Indicates whether the <see cref="Readings"/> were retrieved from cache or directly from the API.
         /// </summary>
         public bool IsFromCache { get; internal set; }
+        /// <summary>
+        /// Indicates whether an API request needed to be made or not to service the request.
+        /// </summary>
         public bool ApiRequestMade { get; internal set; }
 
         internal Readings(ApiWeatherResult apiWeatherResult)
@@ -219,7 +224,7 @@ namespace OpenWeatherMap.Cache.Models
             FetchedTime = DateTime.UtcNow;
         }
 
-        internal Readings(Exception exception)
+        internal Readings(OpenWeatherMapCacheException exception)
         {
             FetchedTime = DateTime.UtcNow;
             Exception = exception;

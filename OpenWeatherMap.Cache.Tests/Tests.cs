@@ -15,6 +15,9 @@ namespace OpenWeatherMap.Cache.Tests
             int totalFromCache = 0;
             int totalFromAPI = 0;
 
+            var location = new Models.Location(48.6371, -122.1237);
+            var readings = openWeatherMapCache.GetReadingsAsync(location).Result;
+
             var result = Parallel.For(1, 101, (i, state) =>
             {
                 var location = new Models.Location(48.6371, -122.1237);

@@ -35,6 +35,11 @@ if (readings.IsSuccessful)
 {
 	...
 }
+else
+{
+	var apiErrorCode = readings.Exception?.ApiErrorCode;
+	var apiErrorMessage = readings.Exception?.ApiErrorMessage;
+}
 ```
 
 ## Usage in synchronous methods
@@ -44,5 +49,10 @@ var readings = openWeatherMapCache.GetReadingsAsync(location).Result;
 if (readings.IsSuccessful)
 {
 	...
+}
+else
+{
+	var apiErrorCode = readings.Exception?.ApiErrorCode;
+	var apiErrorMessage = readings.Exception?.ApiErrorMessage;
 }
 ```
