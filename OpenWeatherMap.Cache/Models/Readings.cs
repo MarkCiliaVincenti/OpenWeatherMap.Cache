@@ -78,7 +78,7 @@ namespace OpenWeatherMap.Cache.Models
         /// <summary>
         /// The humidity of the <see cref="Readings"/>.
         /// </summary>
-        public Ratio Humidity { get; internal set; }
+        public RelativeHumidity Humidity { get; internal set; }
         /// <summary>
         /// Minimum temperature at the moment. This is minimal currently observed temperature (within large megalopolises and urban areas).
         /// </summary>
@@ -192,7 +192,7 @@ namespace OpenWeatherMap.Cache.Models
             Temperature = Temperature.FromKelvins(apiWeatherResult.Main.Temp);
             FeelsLike = Temperature.FromKelvins(apiWeatherResult.Main.FeelsLike);
             Pressure = Pressure.FromHectopascals(apiWeatherResult.Main.Pressure);
-            Humidity = Ratio.FromPercent(apiWeatherResult.Main.Humidity);
+            Humidity = RelativeHumidity.FromPercent(apiWeatherResult.Main.Humidity);
             MinimumTemperature = Temperature.FromKelvins(apiWeatherResult.Main.TempMin);
             MaximumTemperature = Temperature.FromKelvins(apiWeatherResult.Main.TempMax);
             if (apiWeatherResult.Main.SeaLevel.HasValue)
