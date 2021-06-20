@@ -30,7 +30,7 @@ namespace OpenWeatherMap.Cache
         private readonly FetchMode _fetchMode;
         private readonly int _resiliencyPeriod;
         private readonly int _timeout;
-        private readonly bool _logLatestForLocation;
+        private readonly string _logPath;
         private readonly MemoryCache _memoryCache;
         private readonly AsyncDuplicateLock _asyncDuplicateLock;
 
@@ -42,15 +42,15 @@ namespace OpenWeatherMap.Cache
         /// <param name="fetchMode">The mode of operation. Defaults to <see cref="FetchMode.AlwaysUseLastMeasuredButExtendCache"/>.</param>
         /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod"/>.</param>
         /// <param name="timeout">The number of milliseconds for the <see cref="WebRequest"/> timeout. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultTimeout"/>.</param>
-        /// <param name="logLatestForLocation">Logs the latest result for a given location to file. Defaults to false.</param>
-        public OpenWeatherMapCache(string apiKey, int apiCachePeriod, FetchMode fetchMode = FetchMode.AlwaysUseLastMeasuredButExtendCache, int resiliencyPeriod = OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod, int timeout = OpenWeatherMapCacheDefaults.DefaultTimeout, bool logLatestForLocation = false)
+        /// <param name="logPath">Logs the latest result for a given location to file. Defaults to null (disabled).</param>
+        public OpenWeatherMapCache(string apiKey, int apiCachePeriod, FetchMode fetchMode = FetchMode.AlwaysUseLastMeasuredButExtendCache, int resiliencyPeriod = OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod, int timeout = OpenWeatherMapCacheDefaults.DefaultTimeout, string logPath = null)
         {
             _apiKey = apiKey;
             _apiCachePeriod = apiCachePeriod;
             _fetchMode = fetchMode;
             _resiliencyPeriod = resiliencyPeriod;
             _timeout = timeout;
-            _logLatestForLocation = logLatestForLocation;
+            _logPath = logPath;
             _memoryCache = new MemoryCache(new MemoryCacheOptions());
             _asyncDuplicateLock = new AsyncDuplicateLock();
         }
@@ -79,8 +79,8 @@ namespace OpenWeatherMap.Cache
                     using (var streamReader = new StreamReader(response.GetResponseStream()))
                     {
                         var content = await streamReader.ReadToEndAsync();
-                        if (_logLatestForLocation)
-                            File.WriteAllText($"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json", content);
+                        if (_logPath != null)
+                            File.WriteAllText(Path.Combine(_logPath, $"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json"), content);
                         return JsonSerializer.Deserialize<ApiWeatherResult>(content);
                     }
                 }
