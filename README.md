@@ -16,7 +16,7 @@ With *FetchMode.AlwaysUseLastFetchedValue*, the last fetched API result is retur
 ## Initialization with Dependency Injection
 In your Startup.cs (ConfigureServices):
 ```c#
-services.AddOpenWeatherMapCache("[API KEY]", FetchMode.AlwaysUseLastMeasuredButExtendCache, 9_500, 300_000);
+services.AddOpenWeatherMapCache("[API KEY]", 9_500, FetchMode.AlwaysUseLastMeasuredButExtendCache, 300_000);
 ```
 
 Then you can inject IOpenWeatherMapCache.
@@ -24,13 +24,28 @@ Then you can inject IOpenWeatherMapCache.
 ## Initialization without Dependency Injection
 Create your own instance:
 ```c#
-var openWeatherMapCache = new OpenWeatherMapCache("[API KEY]", FetchMode.AlwaysUseLastMeasuredButExtendCache, 9_500, 300_000);
+var openWeatherMapCache = new OpenWeatherMapCache("[API KEY]", 9_500, FetchMode.AlwaysUseLastMeasuredButExtendCache, 300_000);
 ```
 
 ## Usage in asynchronous methods (recommended)
 ```c#
-var location = new OpenWeatherMap.Cache.Location(47.6371, -122.1237);
-var readings = await openWeatherMapCache.GetReadingsAsync(location);
+var locationQuery = new OpenWeatherMap.Cache.Location(47.6371, -122.1237);
+var readings = await openWeatherMapCache.GetReadingsAsync(locationQuery);
+if (readings.IsSuccessful)
+{
+	...
+}
+else
+{
+	var apiErrorCode = readings.Exception?.ApiErrorCode;
+	var apiErrorMessage = readings.Exception?.ApiErrorMessage;
+}
+```
+
+or by zip code and country code:
+```c#
+var locationQuery = new OpenWeatherMap.Cache.ZipCode("94040", "us");
+var readings = await openWeatherMapCache.GetReadingsAsync(locationQuery);
 if (readings.IsSuccessful)
 {
 	...
@@ -44,8 +59,23 @@ else
 
 ## Usage in synchronous methods
 ```c#
-var location = new OpenWeatherMap.Cache.Location(47.6371, -122.1237);
-var readings = openWeatherMapCache.GetReadingsAsync(location).Result;
+var locationQuery = new OpenWeatherMap.Cache.Location(47.6371, -122.1237);
+var readings = openWeatherMapCache.GetReadingsAsync(locationQuery).Result;
+if (readings.IsSuccessful)
+{
+	...
+}
+else
+{
+	var apiErrorCode = readings.Exception?.ApiErrorCode;
+	var apiErrorMessage = readings.Exception?.ApiErrorMessage;
+}
+```
+
+or by zip code and country code:
+```c#
+var locationQuery = new OpenWeatherMap.Cache.ZipCode("94040", "us");
+var readings = openWeatherMapCache.GetReadingsAsync(locationQuery).Result;
 if (readings.IsSuccessful)
 {
 	...

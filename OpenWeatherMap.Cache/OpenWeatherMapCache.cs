@@ -18,7 +18,7 @@ namespace OpenWeatherMap.Cache
     public interface IOpenWeatherMapCache
     {
         /// <inheritdoc cref="OpenWeatherMapCache.GetReadingsAsync"/>
-        Task<Readings> GetReadingsAsync(Location location);
+        Task<Readings> GetReadingsAsync<T>(T locationQuery) where T : LocationQuery;
     }
     /// <summary>
     /// Class for OpenWeatherMapCache
@@ -55,24 +55,30 @@ namespace OpenWeatherMap.Cache
             _asyncDuplicateLock = new AsyncDuplicateLock();
         }
 
+        private HttpWebRequest BuildHttpWebRequest(string uri, int timeout)
+        {
+            var request = WebRequest.CreateHttp(uri);
+            request.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
+            request.AllowAutoRedirect = true;
+            request.CookieContainer = new CookieContainer();
+            request.AllowReadStreamBuffering = true;
+            request.Date = DateTime.UtcNow;
+            request.IfModifiedSince = DateTime.MinValue;
+            request.Accept = "application/json";
+            request.KeepAlive = false;
+            request.ProtocolVersion = new Version(1, 1);
+            request.UserAgent = null;
+            request.Method = "GET";
+            request.Timeout = timeout;
+            request.ReadWriteTimeout = timeout;
+            return request;
+        }
+
         private async Task<ApiWeatherResult> GetApiWeatherResultFromUri(Location location, string uri, int timeout)
         {
             try
             {
-                var request = WebRequest.CreateHttp(uri);
-                request.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
-                request.AllowAutoRedirect = true;
-                request.CookieContainer = new CookieContainer();
-                request.AllowReadStreamBuffering = true;
-                request.Date = DateTime.UtcNow;
-                request.IfModifiedSince = DateTime.MinValue;
-                request.Accept = "application/json";
-                request.KeepAlive = false;
-                request.ProtocolVersion = new Version(1, 1);
-                request.UserAgent = null;
-                request.Method = "GET";
-                request.Timeout = timeout;
-                request.ReadWriteTimeout = timeout;
+                var request = BuildHttpWebRequest(uri, timeout);
 
                 using (var response = (HttpWebResponse)await request.GetResponseAsync())
                 {
@@ -115,17 +121,79 @@ namespace OpenWeatherMap.Cache
             }
         }
 
-        /// <summary>
-        /// Attempts to get the readings for the provided <see cref="Location"/>.
-        /// </summary>
-        /// <param name="location">The <see cref="Location"/> for which to get the readings.</param>
-        /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
-        public async Task<Readings> GetReadingsAsync(Location location)
+        private async Task<ApiWeatherResult> GetApiWeatherResultFromUri(ZipCode zipCode, string uri, int timeout)
         {
-            var lockObj = await _asyncDuplicateLock.LockAsync(location);
+            try
+            {
+                var request = BuildHttpWebRequest(uri, timeout);
+
+                using (var response = (HttpWebResponse)await request.GetResponseAsync())
+                {
+                    using (var streamReader = new StreamReader(response.GetResponseStream()))
+                    {
+                        var content = await streamReader.ReadToEndAsync();
+                        if (_logPath != null)
+                            File.WriteAllText(Path.Combine(_logPath, $"{zipCode.Zip}-{zipCode.CountryCode}.json"), content);
+                        return JsonSerializer.Deserialize<ApiWeatherResult>(content);
+                    }
+                }
+            }
+            catch (WebException webException)
+            {
+                if (webException.Status == WebExceptionStatus.ProtocolError)
+                {
+                    ApiErrorResult errorResult;
+                    try
+                    {
+                        errorResult = await JsonSerializer.DeserializeAsync<ApiErrorResult>(webException.Response.GetResponseStream());
+                    }
+                    catch
+                    {
+                        throw new OpenWeatherMapCacheException("Could not deserialize JSON content");
+                    }
+                    throw new OpenWeatherMapCacheException(errorResult);
+                }
+                else
+                {
+                    throw new OpenWeatherMapCacheException(webException.Message);
+                }
+            }
+            catch (JsonException)
+            {
+                throw new OpenWeatherMapCacheException("Could not deserialize JSON content");
+            }
+            catch (Exception exception)
+            {
+                throw new OpenWeatherMapCacheException(exception.Message);
+            }
+        }
+
+        private async Task<ApiWeatherResult> GetApiWeatherResultFromLocationQuery<T>(T locationQuery) where T : LocationQuery
+        {
+            if (locationQuery is Location location)
+            {
+                var apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
+                return await GetApiWeatherResultFromUri(location, apiUrl, _timeout);
+            }
+            else if (locationQuery is ZipCode zipCode)
+            {
+                var apiUrl = $"https://api.openweathermap.org/data/2.5/weather?zip={zipCode.Zip},{zipCode.CountryCode}&appid={_apiKey}&cache={Guid.NewGuid()}";
+                return await GetApiWeatherResultFromUri(zipCode, apiUrl, _timeout);
+            }
+            else throw new ArgumentException();
+        }
+
+        /// <summary>
+        /// Attempts to get the readings for the provided <see cref="Location"/> or <see cref="ZipCode"/>.
+        /// </summary>
+        /// <param name="locationQuery">The <see cref="Location"/> or <see cref="ZipCode"/> for which to get the readings.</param>
+        /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
+        public async Task<Readings> GetReadingsAsync<T>(T locationQuery) where T : LocationQuery
+        {
+            var lockObj = await _asyncDuplicateLock.LockAsync(locationQuery);
 
             var dateTime = DateTime.UtcNow;
-            var found = _memoryCache.TryGetValue(location, out Readings apiCache);
+            var found = _memoryCache.TryGetValue(locationQuery, out Readings apiCache);
 
             if (found)
             {
@@ -139,17 +207,15 @@ namespace OpenWeatherMap.Cache
                 }
             }
 
-            string apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
-
             try
             {
-                var apiWeatherResult = await GetApiWeatherResultFromUri(location, apiUrl, _timeout);
+                var apiWeatherResult = await GetApiWeatherResultFromLocationQuery(locationQuery);
                 var newValue = new Readings(apiWeatherResult);
                 newValue.IsFromCache = false;
 
                 if (!found || !apiCache.IsSuccessful || _fetchMode == FetchMode.AlwaysUseLastFetchedValue || (newValue.MeasuredTime >= apiCache.MeasuredTime))
                 {
-                    _memoryCache.Set(location, newValue, new MemoryCacheEntryOptions
+                    _memoryCache.Set(locationQuery, newValue, new MemoryCacheEntryOptions
                     {
                         AbsoluteExpiration = newValue.FetchedTime.AddMilliseconds(_resiliencyPeriod)
                     });
@@ -162,7 +228,7 @@ namespace OpenWeatherMap.Cache
                     if (_fetchMode == FetchMode.AlwaysUseLastMeasuredButExtendCache)
                     {
                         apiCache.FetchedTime = newValue.FetchedTime;
-                        _memoryCache.Set(location, apiCache, new MemoryCacheEntryOptions
+                        _memoryCache.Set(locationQuery, apiCache, new MemoryCacheEntryOptions
                         {
                             AbsoluteExpiration = apiCache.FetchedTime.AddMilliseconds(_resiliencyPeriod)
                         });
