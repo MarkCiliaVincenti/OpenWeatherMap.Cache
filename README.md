@@ -29,7 +29,7 @@ var openWeatherMapCache = new OpenWeatherMapCache("[API KEY]", 9_500, FetchMode.
 
 ## Usage in asynchronous methods (recommended)
 ```c#
-var locationQuery = new OpenWeatherMap.Cache.Location(47.6371, -122.1237);
+var locationQuery = new OpenWeatherMap.Cache.Models.Location(47.6371, -122.1237);
 var readings = await openWeatherMapCache.GetReadingsAsync(locationQuery);
 if (readings.IsSuccessful)
 {
@@ -44,7 +44,7 @@ else
 
 or by zip code and country code:
 ```c#
-var locationQuery = new OpenWeatherMap.Cache.ZipCode("94040", "us");
+var locationQuery = new OpenWeatherMap.Cache.Models.ZipCode("94040", "us");
 var readings = await openWeatherMapCache.GetReadingsAsync(locationQuery);
 if (readings.IsSuccessful)
 {
@@ -59,7 +59,7 @@ else
 
 ## Usage in synchronous methods
 ```c#
-var locationQuery = new OpenWeatherMap.Cache.Location(47.6371, -122.1237);
+var locationQuery = new OpenWeatherMap.Cache.Models.Location(47.6371, -122.1237);
 var readings = openWeatherMapCache.GetReadingsAsync(locationQuery).Result;
 if (readings.IsSuccessful)
 {
@@ -74,7 +74,7 @@ else
 
 or by zip code and country code:
 ```c#
-var locationQuery = new OpenWeatherMap.Cache.ZipCode("94040", "us");
+var locationQuery = new OpenWeatherMap.Cache.Models.ZipCode("94040", "us");
 var readings = openWeatherMapCache.GetReadingsAsync(locationQuery).Result;
 if (readings.IsSuccessful)
 {
