@@ -18,7 +18,7 @@ namespace OpenWeatherMap.Cache
     public interface IOpenWeatherMapCache
     {
         /// <inheritdoc cref="OpenWeatherMapCache.GetReadingsAsync"/>
-        Task<Readings> GetReadingsAsync<T>(T locationQuery) where T : LocationQuery;
+        Task<Readings> GetReadingsAsync<T>(T locationQuery) where T : ILocationQuery;
     }
     /// <summary>
     /// Class for OpenWeatherMapCache
@@ -32,7 +32,6 @@ namespace OpenWeatherMap.Cache
         private readonly int _timeout;
         private readonly string _logPath;
         private readonly MemoryCache _memoryCache;
-        private readonly AsyncDuplicateLock _asyncDuplicateLock;
 
         /// <summary>
         /// Initializes a new instance of <see cref="OpenWeatherMapCache"/>.
@@ -52,10 +51,9 @@ namespace OpenWeatherMap.Cache
             _timeout = timeout;
             _logPath = logPath;
             _memoryCache = new MemoryCache(new MemoryCacheOptions());
-            _asyncDuplicateLock = new AsyncDuplicateLock();
         }
 
-        private HttpWebRequest BuildHttpWebRequest(string uri, int timeout)
+        private static HttpWebRequest BuildHttpWebRequest(string uri, int timeout)
         {
             var request = WebRequest.CreateHttp(uri);
             request.CachePolicy = new HttpRequestCachePolicy(HttpRequestCacheLevel.NoCacheNoStore);
@@ -168,19 +166,21 @@ namespace OpenWeatherMap.Cache
             }
         }
 
-        private async Task<ApiWeatherResult> GetApiWeatherResultFromLocationQuery<T>(T locationQuery) where T : LocationQuery
+        private async Task<ApiWeatherResult> GetApiWeatherResultFromLocationQuery<T>(T locationQuery) where T : ILocationQuery
         {
             if (locationQuery is Location location)
             {
                 var apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
                 return await GetApiWeatherResultFromUri(location, apiUrl, _timeout);
             }
-            else if (locationQuery is ZipCode zipCode)
+
+            if (locationQuery is ZipCode zipCode)
             {
                 var apiUrl = $"https://api.openweathermap.org/data/2.5/weather?zip={zipCode.Zip},{zipCode.CountryCode}&appid={_apiKey}&cache={Guid.NewGuid()}";
                 return await GetApiWeatherResultFromUri(zipCode, apiUrl, _timeout);
             }
-            else throw new ArgumentException();
+
+            throw new ArgumentException("Unsupported type provided", nameof(locationQuery));
         }
 
         /// <summary>
@@ -188,9 +188,9 @@ namespace OpenWeatherMap.Cache
         /// </summary>
         /// <param name="locationQuery">The <see cref="Location"/> or <see cref="ZipCode"/> for which to get the readings.</param>
         /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
-        public async Task<Readings> GetReadingsAsync<T>(T locationQuery) where T : LocationQuery
+        public async Task<Readings> GetReadingsAsync<T>(T locationQuery) where T : ILocationQuery
         {
-            var lockObj = await _asyncDuplicateLock.LockAsync(locationQuery);
+            var lockObj = await AsyncDuplicateLock.LockAsync(locationQuery);
 
             var dateTime = DateTime.UtcNow;
             var found = _memoryCache.TryGetValue(locationQuery, out Readings apiCache);
@@ -210,8 +210,10 @@ namespace OpenWeatherMap.Cache
             try
             {
                 var apiWeatherResult = await GetApiWeatherResultFromLocationQuery(locationQuery);
-                var newValue = new Readings(apiWeatherResult);
-                newValue.IsFromCache = false;
+                var newValue = new Readings(apiWeatherResult)
+                {
+                    IsFromCache = false
+                };
 
                 if (!found || !apiCache.IsSuccessful || _fetchMode == FetchMode.AlwaysUseLastFetchedValue || (newValue.MeasuredTime >= apiCache.MeasuredTime))
                 {

@@ -6,16 +6,20 @@
     <RepositoryUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache</PackageProjectUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
     <PackageIcon>logo.png</PackageIcon>
-    <PackageReleaseNotes>Added the possibility to query the weather by zip code and country code</PackageReleaseNotes>
-    <Description>An asynchronous .NET Standard library that allows you to fetch &amp; cache current weather readings from the OpenWeatherMap API, with in-built resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
+    <PackageReleaseNotes>Bumping NuGet packages, switched LocationQuery base class to an interface and other code cleanups.</PackageReleaseNotes>
+    <Description>An asynchronous .NET Standard 2.0 library that allows you to fetch &amp; cache current weather readings from the OpenWeatherMap API, with in-built resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
     <Copyright>© 2021 Mark Cilia Vincenti</Copyright>
     <PackageTags>OpenWeather,OpenWeatherMap,cache,weather,API,.NET Standard,netstandard</PackageTags>
     <RepositoryType>git</RepositoryType>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <AssemblyVersion>1.4.0.0</AssemblyVersion>
-    <FileVersion>1.4.0.0</FileVersion>
+    <AssemblyVersion>1.4.1.0</AssemblyVersion>
+    <FileVersion>1.4.1.0</FileVersion>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -34,13 +38,13 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
-    <PackageReference Include="UnitsNet" Version="4.95.0" />
+    <PackageReference Include="UnitsNet" Version="4.102.0" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\README.md">
-      <Pack>False</Pack>
-      <PackagePath></PackagePath>
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>    
     <None Include="..\logo.png">
       <Pack>True</Pack>

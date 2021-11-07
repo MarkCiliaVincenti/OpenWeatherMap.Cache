@@ -22,7 +22,7 @@ namespace OpenWeatherMap.Cache.Helpers
         private static readonly Dictionary<object, RefCounted<SemaphoreSlim>> SemaphoreSlims
                               = new Dictionary<object, RefCounted<SemaphoreSlim>>();
 
-        private SemaphoreSlim GetOrCreate(object key)
+        private static SemaphoreSlim GetOrCreate(object key)
         {
             RefCounted<SemaphoreSlim> item;
             lock (SemaphoreSlims)
@@ -40,13 +40,13 @@ namespace OpenWeatherMap.Cache.Helpers
             return item.Value;
         }
 
-        public IDisposable Lock(object key)
+        public static IDisposable Lock(object key)
         {
             GetOrCreate(key).Wait();
             return new Releaser { Key = key };
         }
 
-        public async Task<IDisposable> LockAsync(object key)
+        public static async Task<IDisposable> LockAsync(object key)
         {
             await GetOrCreate(key).WaitAsync().ConfigureAwait(false);
             return new Releaser { Key = key };

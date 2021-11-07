@@ -5,7 +5,7 @@ namespace OpenWeatherMap.Cache.Models
     /// <summary>
     /// Class for the location with latitude and longitude.
     /// </summary>
-    public class Location : LocationQuery, IEquatable<Location>
+    public class Location : ILocationQuery, IEquatable<Location>
     {
         /// <summary>
         /// The latitude of the <see cref="Location"/>.

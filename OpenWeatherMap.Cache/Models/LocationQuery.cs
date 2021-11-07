@@ -1,6 +1,9 @@
 ﻿namespace OpenWeatherMap.Cache.Models
 {
-    public class LocationQuery
+    /// <summary>
+    /// Interface for a location query
+    /// </summary>
+    public interface ILocationQuery
     {
     }
 }
