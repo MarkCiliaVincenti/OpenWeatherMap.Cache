@@ -15,7 +15,7 @@ With *FetchMode.AlwaysUseLastFetchedValue*, the last fetched API result is retur
 
 ## Initialization with Dependency Injection
 In your Startup.cs (ConfigureServices):
-```c#
+```csharp
 services.AddOpenWeatherMapCache("[API KEY]", 9_500, FetchMode.AlwaysUseLastMeasuredButExtendCache, 300_000);
 ```
 
@@ -23,12 +23,12 @@ Then you can inject IOpenWeatherMapCache.
 
 ## Initialization without Dependency Injection
 Create your own instance:
-```c#
+```csharp
 var openWeatherMapCache = new OpenWeatherMapCache("[API KEY]", 9_500, FetchMode.AlwaysUseLastMeasuredButExtendCache, 300_000);
 ```
 
 ## Usage in asynchronous methods (recommended)
-```c#
+```csharp
 var locationQuery = new OpenWeatherMap.Cache.Models.Location(47.6371, -122.1237);
 var readings = await openWeatherMapCache.GetReadingsAsync(locationQuery);
 if (readings.IsSuccessful)
@@ -43,7 +43,7 @@ else
 ```
 
 or by zip code and country code:
-```c#
+```csharp
 var locationQuery = new OpenWeatherMap.Cache.Models.ZipCode("94040", "us");
 var readings = await openWeatherMapCache.GetReadingsAsync(locationQuery);
 if (readings.IsSuccessful)
@@ -58,7 +58,7 @@ else
 ```
 
 ## Usage in synchronous methods
-```c#
+```csharp
 var locationQuery = new OpenWeatherMap.Cache.Models.Location(47.6371, -122.1237);
 var readings = openWeatherMapCache.GetReadingsAsync(locationQuery).Result;
 if (readings.IsSuccessful)
@@ -73,7 +73,7 @@ else
 ```
 
 or by zip code and country code:
-```c#
+```csharp
 var locationQuery = new OpenWeatherMap.Cache.Models.ZipCode("94040", "us");
 var readings = openWeatherMapCache.GetReadingsAsync(locationQuery).Result;
 if (readings.IsSuccessful)
