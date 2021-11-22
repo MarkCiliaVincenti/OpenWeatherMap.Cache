@@ -9,7 +9,7 @@
     <Version>1.4.5</Version>
     <PackageIcon>logo.png</PackageIcon>
     <PackageReleaseNotes>Moved locking class to its own package.</PackageReleaseNotes>
-    <Description>An asynchronous .NET Standard 2.0 library that allows you to fetch &amp; cache current weather readings from the OpenWeather API, with built0-in resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
+    <Description>An asynchronous .NET Standard 2.0 library that allows you to fetch &amp; cache current weather readings from the OpenWeather API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
     <Copyright>© 2021 Mark Cilia Vincenti</Copyright>
     <PackageTags>OpenWeather,OpenWeatherMap,cache,weather,API,.NET Standard,netstandard</PackageTags>
     <RepositoryType>git</RepositoryType>
