@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using AsyncKeyedLock;
+using Microsoft.Extensions.Caching.Memory;
 using OpenWeatherMap.Cache.Constants;
-using OpenWeatherMap.Cache.Helpers;
 using OpenWeatherMap.Cache.Models;
 using System;
 using System.IO;
@@ -190,7 +190,7 @@ namespace OpenWeatherMap.Cache
         /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
         public async Task<Readings> GetReadingsAsync<T>(T locationQuery) where T : ILocationQuery
         {
-            var lockObj = await AsyncDuplicateLock.LockAsync(locationQuery);
+            var lockObj = await AsyncKeyedLocker.LockAsync(locationQuery);
 
             var dateTime = DateTime.UtcNow;
             var found = _memoryCache.TryGetValue(locationQuery, out Readings apiCache);
