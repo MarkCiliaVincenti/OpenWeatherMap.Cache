@@ -77,7 +77,7 @@ namespace OpenWeatherMap.Cache
             return request;
         }
 
-        public static async Task<HttpWebResponse> GetResponseAsync(HttpWebRequest request, CancellationToken cancellationToken)
+        private static async Task<HttpWebResponse> GetResponseAsync(HttpWebRequest request, CancellationToken cancellationToken)
         {
             if (cancellationToken == default)
             {
@@ -97,7 +97,7 @@ namespace OpenWeatherMap.Cache
 
             try
             {
-                using (var response = (HttpWebResponse)await GetResponseAsync(request, cancellationToken))
+                using (var response = await GetResponseAsync(request, cancellationToken))
                 {
                     using (var streamReader = new StreamReader(response.GetResponseStream()))
                     {
@@ -118,10 +118,13 @@ namespace OpenWeatherMap.Cache
                     ApiErrorResult errorResult;
                     try
                     {
-                        errorResult = await JsonSerializer.DeserializeAsync<ApiErrorResult>(webException.Response.GetResponseStream());
+                        errorResult = await JsonSerializer.DeserializeAsync<ApiErrorResult>(webException.Response.GetResponseStream(), cancellationToken: cancellationToken);
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        if (cancellationToken != default && cancellationToken.IsCancellationRequested)
+                            throw new OperationCanceledException(ex.Message, ex, cancellationToken);
+
                         throw new OpenWeatherMapCacheException("Could not deserialize JSON content");
                     }
                     throw new OpenWeatherMapCacheException(errorResult);
