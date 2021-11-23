@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using System.Net.Cache;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using static OpenWeatherMap.Cache.Enums;
 
@@ -18,7 +19,11 @@ namespace OpenWeatherMap.Cache
     public interface IOpenWeatherMapCache
     {
         /// <inheritdoc cref="OpenWeatherMapCache.GetReadingsAsync"/>
-        Task<Readings> GetReadingsAsync<T>(T locationQuery) where T : ILocationQuery;
+        Task<Readings> GetReadingsAsync<T>(T locationQuery, CancellationToken cancellationToken = default) where T : ILocationQuery;
+
+        /// <inheritdoc cref="OpenWeatherMapCache.GetReadings"/>
+        Readings GetReadings<T>(T locationQuery) where T : ILocationQuery;
+
     }
     /// <summary>
     /// Class for OpenWeatherMapCache
@@ -72,25 +77,42 @@ namespace OpenWeatherMap.Cache
             return request;
         }
 
-        private async Task<ApiWeatherResult> GetApiWeatherResultFromUri(Location location, string uri, int timeout)
+        public static async Task<HttpWebResponse> GetResponseAsync(HttpWebRequest request, CancellationToken cancellationToken)
         {
+            if (cancellationToken == default)
+            {
+                var response = await request.GetResponseAsync();
+                return (HttpWebResponse)response;
+            }
+            using (cancellationToken.Register(request.Abort, false))
+            {
+                var response = await request.GetResponseAsync();
+                return (HttpWebResponse)response;
+            }
+        }
+
+        private async Task<ApiWeatherResult> GetApiWeatherResultFromUri(string logFileName, string uri, int timeout, CancellationToken cancellationToken)
+        {
+            var request = BuildHttpWebRequest(uri, timeout);
+
             try
             {
-                var request = BuildHttpWebRequest(uri, timeout);
-
-                using (var response = (HttpWebResponse)await request.GetResponseAsync())
+                using (var response = (HttpWebResponse)await GetResponseAsync(request, cancellationToken))
                 {
                     using (var streamReader = new StreamReader(response.GetResponseStream()))
                     {
                         var content = await streamReader.ReadToEndAsync();
                         if (_logPath != null)
-                            File.WriteAllText(Path.Combine(_logPath, $"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json"), content);
+                            File.WriteAllText(Path.Combine(_logPath, logFileName), content);
                         return JsonSerializer.Deserialize<ApiWeatherResult>(content);
                     }
                 }
             }
             catch (WebException webException)
             {
+                if (cancellationToken != default && cancellationToken.IsCancellationRequested)
+                    throw new OperationCanceledException(webException.Message, webException, cancellationToken);
+
                 if (webException.Status == WebExceptionStatus.ProtocolError)
                 {
                     ApiErrorResult errorResult;
@@ -119,65 +141,30 @@ namespace OpenWeatherMap.Cache
             }
         }
 
-        private async Task<ApiWeatherResult> GetApiWeatherResultFromUri(ZipCode zipCode, string uri, int timeout)
+        private async Task<ApiWeatherResult> GetApiWeatherResultFromUri(Location location, string uri, int timeout, CancellationToken cancellationToken)
         {
-            try
-            {
-                var request = BuildHttpWebRequest(uri, timeout);
-
-                using (var response = (HttpWebResponse)await request.GetResponseAsync())
-                {
-                    using (var streamReader = new StreamReader(response.GetResponseStream()))
-                    {
-                        var content = await streamReader.ReadToEndAsync();
-                        if (_logPath != null)
-                            File.WriteAllText(Path.Combine(_logPath, $"{zipCode.Zip}-{zipCode.CountryCode}.json"), content);
-                        return JsonSerializer.Deserialize<ApiWeatherResult>(content);
-                    }
-                }
-            }
-            catch (WebException webException)
-            {
-                if (webException.Status == WebExceptionStatus.ProtocolError)
-                {
-                    ApiErrorResult errorResult;
-                    try
-                    {
-                        errorResult = await JsonSerializer.DeserializeAsync<ApiErrorResult>(webException.Response.GetResponseStream());
-                    }
-                    catch
-                    {
-                        throw new OpenWeatherMapCacheException("Could not deserialize JSON content");
-                    }
-                    throw new OpenWeatherMapCacheException(errorResult);
-                }
-                else
-                {
-                    throw new OpenWeatherMapCacheException(webException.Message);
-                }
-            }
-            catch (JsonException)
-            {
-                throw new OpenWeatherMapCacheException("Could not deserialize JSON content");
-            }
-            catch (Exception exception)
-            {
-                throw new OpenWeatherMapCacheException(exception.Message);
-            }
+            var fileName = $"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json";
+            return await GetApiWeatherResultFromUri(fileName, uri, timeout, cancellationToken);
         }
 
-        private async Task<ApiWeatherResult> GetApiWeatherResultFromLocationQuery<T>(T locationQuery) where T : ILocationQuery
+        private async Task<ApiWeatherResult> GetApiWeatherResultFromUri(ZipCode zipCode, string uri, int timeout, CancellationToken cancellationToken)
+        {
+            var fileName = $"{zipCode.Zip}-{zipCode.CountryCode}.json";
+            return await GetApiWeatherResultFromUri(fileName, uri, timeout, cancellationToken);
+        }
+
+        private async Task<ApiWeatherResult> GetApiWeatherResultFromLocationQuery<T>(T locationQuery, CancellationToken cancellationToken) where T : ILocationQuery
         {
             if (locationQuery is Location location)
             {
                 var apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
-                return await GetApiWeatherResultFromUri(location, apiUrl, _timeout);
+                return await GetApiWeatherResultFromUri(location, apiUrl, _timeout, cancellationToken);
             }
 
             if (locationQuery is ZipCode zipCode)
             {
                 var apiUrl = $"https://api.openweathermap.org/data/2.5/weather?zip={zipCode.Zip},{zipCode.CountryCode}&appid={_apiKey}&cache={Guid.NewGuid()}";
-                return await GetApiWeatherResultFromUri(zipCode, apiUrl, _timeout);
+                return await GetApiWeatherResultFromUri(zipCode, apiUrl, _timeout, cancellationToken);
             }
 
             throw new ArgumentException("Unsupported type provided", nameof(locationQuery));
@@ -187,8 +174,9 @@ namespace OpenWeatherMap.Cache
         /// Attempts to get the readings for the provided <see cref="Location"/> or <see cref="ZipCode"/>.
         /// </summary>
         /// <param name="locationQuery">The <see cref="Location"/> or <see cref="ZipCode"/> for which to get the readings.</param>
+        /// <param name="cancellationToken">Optional <see cref="CancellationToken"/>.</param>
         /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
-        public async Task<Readings> GetReadingsAsync<T>(T locationQuery) where T : ILocationQuery
+        public async Task<Readings> GetReadingsAsync<T>(T locationQuery, CancellationToken cancellationToken = default) where T : ILocationQuery
         {
             var lockObj = await AsyncKeyedLocker.LockAsync(locationQuery);
 
@@ -209,7 +197,7 @@ namespace OpenWeatherMap.Cache
 
             try
             {
-                var apiWeatherResult = await GetApiWeatherResultFromLocationQuery(locationQuery);
+                var apiWeatherResult = await GetApiWeatherResultFromLocationQuery(locationQuery, cancellationToken);
                 var newValue = new Readings(apiWeatherResult)
                 {
                     IsFromCache = false
@@ -253,6 +241,16 @@ namespace OpenWeatherMap.Cache
 
                 return new Readings(exception);
             }
+        }
+
+        /// <summary>
+        /// Attempts to get the readings for the provided <see cref="Location"/> or <see cref="ZipCode"/> by calling GetReadingsAsync synchronously (not ideal).
+        /// </summary>
+        /// <param name="locationQuery">The <see cref="Location"/> or <see cref="ZipCode"/> for which to get the readings.</param>
+        /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
+        public Readings GetReadings<T>(T locationQuery) where T : ILocationQuery
+        {
+            return GetReadingsAsync<T>(locationQuery).GetAwaiter().GetResult();
         }
     }
 }

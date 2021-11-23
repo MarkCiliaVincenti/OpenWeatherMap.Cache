@@ -45,19 +45,14 @@ namespace OpenWeatherMap.Cache.Tests
                 }
             }
 
-
-
             var openWeatherMapCache = new OpenWeatherMapCache(apiKey, 10_000);
             int totalFromCache = 0;
             int totalFromAPI = 0;
 
-            var location = new Models.Location(48.6371, -122.1237);
-            var readings = openWeatherMapCache.GetReadingsAsync(location).Result;
-
             var result = Parallel.For(1, 101, (i, state) =>
             {
                 var location = new Models.Location(48.6371, -122.1237);
-                var readings = openWeatherMapCache.GetReadingsAsync(location).Result;
+                var readings = openWeatherMapCache.GetReadings(location);
                 if (readings.IsFromCache)
                     Interlocked.Increment(ref totalFromCache);
                 else
@@ -76,7 +71,7 @@ namespace OpenWeatherMap.Cache.Tests
             result = Parallel.For(1, 101, (i, state) =>
             {
                 var location = new Models.Location(1, 1);
-                var readings = openWeatherMapCache.GetReadingsAsync(location).Result;
+                var readings = openWeatherMapCache.GetReadings(location);
                 if (readings.IsFromCache)
                     Interlocked.Increment(ref totalFromCache);
                 else

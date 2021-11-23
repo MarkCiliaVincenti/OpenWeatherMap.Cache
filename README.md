@@ -62,7 +62,7 @@ else
 ## Usage in synchronous methods
 ```csharp
 var locationQuery = new OpenWeatherMap.Cache.Models.Location(47.6371, -122.1237);
-var readings = openWeatherMapCache.GetReadingsAsync(locationQuery).Result;
+var readings = openWeatherMapCache.GetReadings(locationQuery);
 if (readings.IsSuccessful)
 {
 	...
@@ -77,7 +77,7 @@ else
 or by zip code (post code) and country code:
 ```csharp
 var locationQuery = new OpenWeatherMap.Cache.Models.ZipCode("94040", "us");
-var readings = openWeatherMapCache.GetReadingsAsync(locationQuery).Result;
+var readings = openWeatherMapCache.GetReadings(locationQuery);
 if (readings.IsSuccessful)
 {
 	...
