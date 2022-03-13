@@ -1,4 +1,4 @@
-# <img src="https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache/raw/master/logo.png" width="32" height="32"> OpenWeatherMap.Cache
+# ![OpenWeatherMap.Cache](https://raw.githubusercontent.com/MarkCiliaVincenti/OpenWeatherMap.Cache/master/logo32.png) OpenWeatherMap.Cache
 [![GitHub branch checks state](https://img.shields.io/github/checks-status/MarkCiliaVincenti/OpenWeatherMap.Cache/master?label=build&logo=github&style=for-the-badge)](https://actions-badge.atrox.dev/MarkCiliaVincenti/OpenWeatherMap.Cache/goto?ref=master) [![Nuget](https://img.shields.io/nuget/v/OpenWeatherMap.Cache?label=OpenWeatherMap.Cache&logo=nuget&style=for-the-badge)](https://www.nuget.org/packages/OpenWeatherMap.Cache) [![Nuget](https://img.shields.io/nuget/dt/OpenWeatherMap.Cache?logo=nuget&style=for-the-badge)](https://www.nuget.org/packages/OpenWeatherMap.Cache)
 
 An asynchronous .NET Standard 2.0 library that allows you to fetch & cache current weather readings from the [OpenWeather](https://openweathermap.org/) API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.
