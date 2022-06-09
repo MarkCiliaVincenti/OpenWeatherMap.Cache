@@ -96,7 +96,7 @@ namespace OpenWeatherMap.Cache.Tests
             var result = Parallel.For(1, 101, async (i, state) =>
             {
                 var location = new Models.Location(48.6371, -122.1237);
-                var readings = await openWeatherMapCache.GetReadingsAsync(location);
+                var readings = await openWeatherMapCache.GetReadingsAsync(location).ConfigureAwait(false);
                 if (readings.IsFromCache)
                     Interlocked.Increment(ref totalFromCache);
                 else
@@ -115,7 +115,7 @@ namespace OpenWeatherMap.Cache.Tests
             result = Parallel.For(1, 101, async (i, state) =>
             {
                 var location = new Models.Location(1, 1);
-                var readings = await openWeatherMapCache.GetReadingsAsync(location);
+                var readings = await openWeatherMapCache.GetReadingsAsync(location).ConfigureAwait(false);
                 if (readings.IsFromCache)
                     Interlocked.Increment(ref totalFromCache);
                 else
