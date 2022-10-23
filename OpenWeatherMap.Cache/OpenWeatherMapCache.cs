@@ -37,7 +37,7 @@ namespace OpenWeatherMap.Cache
         private readonly int _timeout;
         private readonly string _logPath;
         private readonly MemoryCache _memoryCache;
-        private readonly AsyncKeyedLocker _asyncKeyedLocker;
+        private readonly AsyncKeyedLocker<ILocationQuery> _asyncKeyedLocker;
 
         /// <summary>
         /// Initializes a new instance of <see cref="OpenWeatherMapCache"/>.
@@ -57,7 +57,7 @@ namespace OpenWeatherMap.Cache
             _timeout = timeout;
             _logPath = logPath;
             _memoryCache = new MemoryCache(new MemoryCacheOptions());
-            _asyncKeyedLocker = new AsyncKeyedLocker();
+            _asyncKeyedLocker = new AsyncKeyedLocker<ILocationQuery>();
         }
 
         private static HttpWebRequest BuildHttpWebRequest(string uri, int timeout)
@@ -183,7 +183,7 @@ namespace OpenWeatherMap.Cache
         /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
         public async Task<Readings> GetReadingsAsync<T>(T locationQuery, CancellationToken cancellationToken = default) where T : ILocationQuery
         {
-            var lockObj = await _asyncKeyedLocker.LockAsync(locationQuery).ConfigureAwait(false);
+            var lockObj = await _asyncKeyedLocker.LockAsync(locationQuery, cancellationToken).ConfigureAwait(false);
 
             var dateTime = DateTime.UtcNow;
             var found = _memoryCache.TryGetValue(locationQuery, out Readings apiCache);
