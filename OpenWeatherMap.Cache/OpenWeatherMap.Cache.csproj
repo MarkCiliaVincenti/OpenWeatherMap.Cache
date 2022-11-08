@@ -32,7 +32,7 @@
 		<PackageReference Include="AsyncKeyedLock" Version="3.2.3" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-		<PackageReference Include="System.Text.Json" Version="6.0.6" />
+		<PackageReference Include="System.Text.Json" Version="7.0.0" />
 		<PackageReference Include="UnitsNet" Version="4.145.0" />
 	</ItemGroup>
 
