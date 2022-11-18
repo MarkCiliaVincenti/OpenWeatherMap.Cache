@@ -33,7 +33,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
 		<PackageReference Include="System.Text.Json" Version="7.0.0" />
-		<PackageReference Include="UnitsNet" Version="4.148.0" />
+		<PackageReference Include="UnitsNet" Version="4.149.0" />
 	</ItemGroup>
 
 	<ItemGroup>
