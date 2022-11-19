@@ -6,16 +6,16 @@
 		<RepositoryUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache.git</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache</PackageProjectUrl>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Version>1.7.2</Version>
+		<Version>1.7.3</Version>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>Performance improvements, minor bug fixes, enabled synchronous all the way.</PackageReleaseNotes>
+		<PackageReleaseNotes>Bumping NuGet packages, update Tests to .NET 7</PackageReleaseNotes>
 		<Description>An asynchronous .NET Standard 2.0 library that allows you to fetch &amp; cache current weather readings from the OpenWeather API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
 		<Copyright>© 2022 Mark Cilia Vincenti</Copyright>
 		<PackageTags>OpenWeather,OpenWeatherMap,cache,weather,API,.NET Standard,netstandard</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>1.7.2.0</AssemblyVersion>
-		<FileVersion>1.7.2.0</FileVersion>
+		<AssemblyVersion>1.7.3.0</AssemblyVersion>
+		<FileVersion>1.7.3.0</FileVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IsPackable>true</IsPackable>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
@@ -29,11 +29,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AsyncKeyedLock" Version="4.0.2" />
+		<PackageReference Include="AsyncKeyedLock" Version="5.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
 		<PackageReference Include="System.Text.Json" Version="7.0.0" />
-		<PackageReference Include="UnitsNet" Version="4.148.0" />
+		<PackageReference Include="UnitsNet" Version="4.149.0" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -125,7 +125,7 @@ namespace OpenWeatherMap.Cache
                     {
                         errorResult = JsonSerializer.Deserialize<ApiErrorResult>(webException.Response.GetResponseStream());
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         throw new OpenWeatherMapCacheException("Could not deserialize JSON content");
                     }
