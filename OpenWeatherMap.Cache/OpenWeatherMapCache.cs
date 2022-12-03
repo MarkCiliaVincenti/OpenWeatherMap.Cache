@@ -19,7 +19,7 @@ namespace OpenWeatherMap.Cache
     public interface IOpenWeatherMapCache
     {
         /// <inheritdoc cref="OpenWeatherMapCache.GetReadingsAsync"/>
-        Task<Readings> GetReadingsAsync<T>(T locationQuery, CancellationToken cancellationToken = default) where T : ILocationQuery;
+        ValueTask<Readings> GetReadingsAsync<T>(T locationQuery, CancellationToken cancellationToken = default) where T : ILocationQuery;
 
         /// <inheritdoc cref="OpenWeatherMapCache.GetReadings"/>
         Readings GetReadings<T>(T locationQuery) where T : ILocationQuery;
@@ -85,7 +85,7 @@ namespace OpenWeatherMap.Cache
             return (HttpWebResponse)response;
         }
 
-        private static async Task<HttpWebResponse> GetResponseAsync(HttpWebRequest request, CancellationToken cancellationToken)
+        private static async ValueTask<HttpWebResponse> GetResponseAsync(HttpWebRequest request, CancellationToken cancellationToken)
         {
             if (cancellationToken == default)
             {
@@ -105,16 +105,12 @@ namespace OpenWeatherMap.Cache
 
             try
             {
-                using (var response = GetResponse(request))
-                {
-                    using (var streamReader = new StreamReader(response.GetResponseStream()))
-                    {
-                        var content = streamReader.ReadToEnd();
-                        if (_logPath != null)
-                            File.WriteAllText(Path.Combine(_logPath, logFileName), content);
-                        return JsonSerializer.Deserialize<ApiWeatherResult>(content);
-                    }
-                }
+                using var response = GetResponse(request);
+                using var streamReader = new StreamReader(response.GetResponseStream());
+                var content = streamReader.ReadToEnd();
+                if (_logPath != null)
+                    File.WriteAllText(Path.Combine(_logPath, logFileName), content);
+                return JsonSerializer.Deserialize<ApiWeatherResult>(content);
             }
             catch (WebException webException)
             {
@@ -146,22 +142,18 @@ namespace OpenWeatherMap.Cache
             }
         }
 
-        private async Task<ApiWeatherResult> GetApiWeatherResultFromUriAsync(string logFileName, string uri, int timeout, CancellationToken cancellationToken)
+        private async ValueTask<ApiWeatherResult> GetApiWeatherResultFromUriAsync(string logFileName, string uri, int timeout, CancellationToken cancellationToken)
         {
             var request = BuildHttpWebRequest(uri, timeout);
 
             try
             {
-                using (var response = await GetResponseAsync(request, cancellationToken).ConfigureAwait(false))
-                {
-                    using (var streamReader = new StreamReader(response.GetResponseStream()))
-                    {
-                        var content = await streamReader.ReadToEndAsync().ConfigureAwait(false);
-                        if (_logPath != null)
-                            File.WriteAllText(Path.Combine(_logPath, logFileName), content);
-                        return JsonSerializer.Deserialize<ApiWeatherResult>(content);
-                    }
-                }
+                using var response = await GetResponseAsync(request, cancellationToken).ConfigureAwait(false);
+                using var streamReader = new StreamReader(response.GetResponseStream());
+                var content = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+                if (_logPath != null)
+                    File.WriteAllText(Path.Combine(_logPath, logFileName), content);
+                return JsonSerializer.Deserialize<ApiWeatherResult>(content);
             }
             catch (WebException webException)
             {
@@ -205,7 +197,7 @@ namespace OpenWeatherMap.Cache
             return GetApiWeatherResultFromUri(fileName, uri, timeout);
         }
 
-        private async Task<ApiWeatherResult> GetApiWeatherResultFromUriAsync(Location location, string uri, int timeout, CancellationToken cancellationToken)
+        private async ValueTask<ApiWeatherResult> GetApiWeatherResultFromUriAsync(Location location, string uri, int timeout, CancellationToken cancellationToken)
         {
             var fileName = $"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json";
             return await GetApiWeatherResultFromUriAsync(fileName, uri, timeout, cancellationToken).ConfigureAwait(false);
@@ -217,7 +209,7 @@ namespace OpenWeatherMap.Cache
             return GetApiWeatherResultFromUri(fileName, uri, timeout);
         }
 
-        private async Task<ApiWeatherResult> GetApiWeatherResultFromUriAsync(ZipCode zipCode, string uri, int timeout, CancellationToken cancellationToken)
+        private async ValueTask<ApiWeatherResult> GetApiWeatherResultFromUriAsync(ZipCode zipCode, string uri, int timeout, CancellationToken cancellationToken)
         {
             var fileName = $"{zipCode.Zip}-{zipCode.CountryCode}.json";
             return await GetApiWeatherResultFromUriAsync(fileName, uri, timeout, cancellationToken).ConfigureAwait(false);
@@ -240,7 +232,7 @@ namespace OpenWeatherMap.Cache
             throw new ArgumentException("Unsupported type provided", nameof(locationQuery));
         }
 
-        private async Task<ApiWeatherResult> GetApiWeatherResultFromLocationQueryAsync<T>(T locationQuery, CancellationToken cancellationToken) where T : ILocationQuery
+        private async ValueTask<ApiWeatherResult> GetApiWeatherResultFromLocationQueryAsync<T>(T locationQuery, CancellationToken cancellationToken) where T : ILocationQuery
         {
             if (locationQuery is Location location)
             {
@@ -263,7 +255,7 @@ namespace OpenWeatherMap.Cache
         /// <param name="locationQuery">The <see cref="Location"/> or <see cref="ZipCode"/> for which to get the readings.</param>
         /// <param name="cancellationToken">Optional <see cref="CancellationToken"/>.</param>
         /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
-        public async Task<Readings> GetReadingsAsync<T>(T locationQuery, CancellationToken cancellationToken = default) where T : ILocationQuery
+        public async ValueTask<Readings> GetReadingsAsync<T>(T locationQuery, CancellationToken cancellationToken = default) where T : ILocationQuery
         {
             using (await _asyncKeyedLocker.LockAsync(locationQuery, cancellationToken).ConfigureAwait(false))
             {
