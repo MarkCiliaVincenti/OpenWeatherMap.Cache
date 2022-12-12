@@ -7,16 +7,16 @@
 		<RepositoryUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache.git</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache</PackageProjectUrl>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Version>1.8.1</Version>
+		<Version>1.8.2</Version>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>Fixed an issue with logging filenames in some cultures and minor optimisations.</PackageReleaseNotes>
+		<PackageReleaseNotes>Signing assembly.</PackageReleaseNotes>
 		<Description>An asynchronous .NET Standard 2.0 library that allows you to fetch &amp; cache current weather readings from the OpenWeather API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
 		<Copyright>© 2022 Mark Cilia Vincenti</Copyright>
 		<PackageTags>OpenWeather,OpenWeatherMap,cache,weather,API,.NET Standard,netstandard</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>1.8.1.0</AssemblyVersion>
-		<FileVersion>1.8.1.0</FileVersion>
+		<AssemblyVersion>1.8.2.0</AssemblyVersion>
+		<FileVersion>1.8.2.0</FileVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IsPackable>true</IsPackable>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
