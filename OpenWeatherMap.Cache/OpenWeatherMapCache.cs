@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using OpenWeatherMap.Cache.Constants;
 using OpenWeatherMap.Cache.Models;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Cache;
@@ -38,6 +39,8 @@ namespace OpenWeatherMap.Cache
         private readonly string _logPath;
         private readonly MemoryCache _memoryCache;
         private readonly AsyncKeyedLocker<ILocationQuery> _asyncKeyedLocker;
+        private const string BASE_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather";
+        private readonly NumberFormatInfo _numberFormatInfo = new NumberFormatInfo() { NumberDecimalSeparator = "_" };
 
         /// <summary>
         /// Initializes a new instance of <see cref="OpenWeatherMapCache"/>.
@@ -193,13 +196,13 @@ namespace OpenWeatherMap.Cache
 
         private ApiWeatherResult GetApiWeatherResultFromUri(Location location, string uri, int timeout)
         {
-            var fileName = $"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json";
+            var fileName = $"{location.Latitude.ToString(_numberFormatInfo)}-{location.Longitude.ToString(_numberFormatInfo)}.json";
             return GetApiWeatherResultFromUri(fileName, uri, timeout);
         }
 
         private async ValueTask<ApiWeatherResult> GetApiWeatherResultFromUriAsync(Location location, string uri, int timeout, CancellationToken cancellationToken)
         {
-            var fileName = $"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json";
+            var fileName = $"{location.Latitude.ToString(_numberFormatInfo)}-{location.Longitude.ToString(_numberFormatInfo)}.json";
             return await GetApiWeatherResultFromUriAsync(fileName, uri, timeout, cancellationToken).ConfigureAwait(false);
         }
 
@@ -217,36 +220,36 @@ namespace OpenWeatherMap.Cache
 
         private ApiWeatherResult GetApiWeatherResultFromLocationQuery<T>(T locationQuery) where T : ILocationQuery
         {
-            if (locationQuery is Location location)
+            switch (locationQuery)
             {
-                var apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
-                return GetApiWeatherResultFromUri(location, apiUrl, _timeout);
-            }
+                case Location location:
+                    var locationApiUrl = $"{BASE_WEATHER_URI}?lat={location.Latitude}&lon={location.Longitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
+                    return GetApiWeatherResultFromUri(location, locationApiUrl, _timeout);
 
-            if (locationQuery is ZipCode zipCode)
-            {
-                var apiUrl = $"https://api.openweathermap.org/data/2.5/weather?zip={zipCode.Zip},{zipCode.CountryCode}&appid={_apiKey}&cache={Guid.NewGuid()}";
-                return GetApiWeatherResultFromUri(zipCode, apiUrl, _timeout);
-            }
+                case ZipCode zipCode:
+                    var zipCodeApiUrl = $"{BASE_WEATHER_URI}?zip={zipCode.Zip},{zipCode.CountryCode}&appid={_apiKey}&cache={Guid.NewGuid()}";
+                    return GetApiWeatherResultFromUri(zipCode, zipCodeApiUrl, _timeout);
 
-            throw new ArgumentException("Unsupported type provided", nameof(locationQuery));
+                default:
+                    throw new ArgumentException("Unsupported type provided", nameof(locationQuery));
+            }
         }
 
-        private async ValueTask<ApiWeatherResult> GetApiWeatherResultFromLocationQueryAsync<T>(T locationQuery, CancellationToken cancellationToken) where T : ILocationQuery
+        private ValueTask<ApiWeatherResult> GetApiWeatherResultFromLocationQueryAsync<T>(T locationQuery, CancellationToken cancellationToken) where T : ILocationQuery
         {
-            if (locationQuery is Location location)
+            switch (locationQuery)
             {
-                var apiUrl = $"https://api.openweathermap.org/data/2.5/weather?lat={location.Latitude}&lon={location.Longitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
-                return await GetApiWeatherResultFromUriAsync(location, apiUrl, _timeout, cancellationToken).ConfigureAwait(false);
-            }
+                case Location location:
+                    var locationApiUrl = $"{BASE_WEATHER_URI}?lat={location.Latitude}&lon={location.Longitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
+                    return GetApiWeatherResultFromUriAsync(location, locationApiUrl, _timeout, cancellationToken);
 
-            if (locationQuery is ZipCode zipCode)
-            {
-                var apiUrl = $"https://api.openweathermap.org/data/2.5/weather?zip={zipCode.Zip},{zipCode.CountryCode}&appid={_apiKey}&cache={Guid.NewGuid()}";
-                return await GetApiWeatherResultFromUriAsync(zipCode, apiUrl, _timeout, cancellationToken).ConfigureAwait(false);
-            }
+                case ZipCode zipCode:
+                    var zipCodeApiUrl = $"{BASE_WEATHER_URI}?zip={zipCode.Zip},{zipCode.CountryCode}&appid={_apiKey}&cache={Guid.NewGuid()}";
+                    return GetApiWeatherResultFromUriAsync(zipCode, zipCodeApiUrl, _timeout, cancellationToken);
 
-            throw new ArgumentException("Unsupported type provided", nameof(locationQuery));
+                default:
+                    throw new ArgumentException("Unsupported type provided", nameof(locationQuery));
+            }
         }
 
         /// <summary>
