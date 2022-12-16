@@ -6,17 +6,18 @@
 		<Authors>Mark Cilia Vincenti</Authors>
 		<RepositoryUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache.git</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache</PackageProjectUrl>
-		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Version>1.8.3</Version>
+		<Copyright>MIT</Copyright>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Version>1.8.4</Version>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>NuGet depePackage dependency update.</PackageReleaseNotes>
+		<PackageReleaseNotes>Bumping dependencies, updated licensing, fixed README shields issue.</PackageReleaseNotes>
 		<Description>An asynchronous .NET Standard 2.0 library that allows you to fetch &amp; cache current weather readings from the OpenWeather API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
 		<Copyright>© 2022 Mark Cilia Vincenti</Copyright>
 		<PackageTags>OpenWeather,OpenWeatherMap,cache,weather,API,.NET Standard,netstandard</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>1.8.3.0</AssemblyVersion>
-		<FileVersion>1.8.3.0</FileVersion>
+		<AssemblyVersion>1.8.4.0</AssemblyVersion>
+		<FileVersion>1.8.4.0</FileVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IsPackable>true</IsPackable>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
@@ -24,6 +25,7 @@
 		<AnalysisLevel>latest</AnalysisLevel>
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>OpenWeatherMap.Cache.snk</AssemblyOriginatorKeyFile>
+		<CheckEolTargetFramework>false</CheckEolTargetFramework>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -32,7 +34,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AsyncKeyedLock" Version="5.1.1" />
+		<PackageReference Include="AsyncKeyedLock" Version="5.1.221" />
 		<PackageReference Include="UnitsNet" Version="4.149.0" />
 	</ItemGroup>
 
@@ -52,14 +54,10 @@
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-		<PackageReference Include="System.Text.Json" Version="7.0.0" />
+		<PackageReference Include="System.Text.Json" Version="7.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="..\LICENSE">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
 		<None Include="..\README.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
