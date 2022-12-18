@@ -60,7 +60,11 @@ namespace OpenWeatherMap.Cache
             _timeout = timeout;
             _logPath = logPath;
             _memoryCache = new MemoryCache(new MemoryCacheOptions());
-            _asyncKeyedLocker = new AsyncKeyedLocker<ILocationQuery>();
+            _asyncKeyedLocker = new AsyncKeyedLocker<ILocationQuery>(o =>
+            {
+                o.PoolSize = 10;
+                o.PoolInitialFill = 0;
+            });
         }
 
         private static HttpWebRequest BuildHttpWebRequest(string uri, int timeout)
