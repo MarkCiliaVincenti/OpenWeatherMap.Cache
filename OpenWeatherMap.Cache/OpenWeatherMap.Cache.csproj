@@ -8,16 +8,16 @@
 		<PackageProjectUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache</PackageProjectUrl>
 		<Copyright>MIT</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Version>1.8.7</Version>
+		<Version>1.8.8</Version>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>Dependency update; set locker pool initial fill to 1.</PackageReleaseNotes>
+		<PackageReleaseNotes>Dependency update</PackageReleaseNotes>
 		<Description>An asynchronous .NET Standard 2.0 library that allows you to fetch &amp; cache current weather readings from the OpenWeather API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
 		<Copyright>© 2022 Mark Cilia Vincenti</Copyright>
 		<PackageTags>OpenWeather,OpenWeatherMap,cache,weather,API,.NET Standard,netstandard</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>1.8.7.0</AssemblyVersion>
-		<FileVersion>1.8.7.0</FileVersion>
+		<AssemblyVersion>1.8.8.0</AssemblyVersion>
+		<FileVersion>1.8.8.0</FileVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IsPackable>true</IsPackable>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
@@ -34,7 +34,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AsyncKeyedLock" Version="6.0.3" />
+		<PackageReference Include="AsyncKeyedLock" Version="6.0.5" />
 		<PackageReference Include="UnitsNet" Version="4.149.0" />
 	</ItemGroup>
 
