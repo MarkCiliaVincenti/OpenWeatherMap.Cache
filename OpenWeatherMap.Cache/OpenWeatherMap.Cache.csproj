@@ -35,7 +35,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="AsyncKeyedLock" Version="6.0.5" />
-		<PackageReference Include="UnitsNet" Version="4.149.0" />
+		<PackageReference Include="UnitsNet" Version="4.150.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
