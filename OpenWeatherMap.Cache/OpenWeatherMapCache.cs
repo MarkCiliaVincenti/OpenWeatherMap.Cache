@@ -62,7 +62,7 @@ namespace OpenWeatherMap.Cache
             _memoryCache = new MemoryCache(new MemoryCacheOptions());
             _asyncKeyedLocker = new AsyncKeyedLocker<ILocationQuery>(o =>
             {
-                o.PoolSize = 10;
+                o.PoolSize = 20;
                 o.PoolInitialFill = 1;
             });
         }
