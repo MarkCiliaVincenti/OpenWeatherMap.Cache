@@ -36,7 +36,7 @@
 	<ItemGroup>
 		<PackageReference Include="AsyncKeyedLock" Version="6.1.1" />
 		<PackageReference Include="DotNet.ReproducibleBuilds" Version="1.1.1" PrivateAssets="All"/>
-		<PackageReference Include="UnitsNet" Version="4.150.0" />
+		<PackageReference Include="UnitsNet" Version="5.0.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
