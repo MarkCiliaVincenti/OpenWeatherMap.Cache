@@ -31,7 +31,9 @@ namespace OpenWeatherMap.Cache.Models
         public bool Equals(Location other)
         {
             if (other == null)
+            {
                 return false;
+            }
             return Latitude.Equals(other.Latitude) && Longitude.Equals(other.Longitude);
         }
 

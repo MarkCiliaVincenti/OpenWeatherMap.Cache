@@ -31,7 +31,9 @@ namespace OpenWeatherMap.Cache.Models
         public bool Equals(WeatherCondition other)
         {
             if (other == null)
+            {
                 return false;
+            }
             return ConditionId.Equals(other.ConditionId);
         }
 
@@ -196,13 +198,19 @@ namespace OpenWeatherMap.Cache.Models
             MinimumTemperature = Temperature.FromKelvins(apiWeatherResult.Main.TempMin);
             MaximumTemperature = Temperature.FromKelvins(apiWeatherResult.Main.TempMax);
             if (apiWeatherResult.Main.SeaLevel.HasValue)
+            {
                 SeaLevelPressure = Pressure.FromHectopascals(apiWeatherResult.Main.SeaLevel.Value);
+            }
             if (apiWeatherResult.Main.GrndLevel.HasValue)
+            {
                 GroundLevelPressure = Pressure.FromHectopascals(apiWeatherResult.Main.GrndLevel.Value);
+            }
             WindSpeed = Speed.FromMetersPerSecond(apiWeatherResult.Wind.Speed);
             WindDirection = Angle.FromDegrees(apiWeatherResult.Wind.Deg);
             if (apiWeatherResult.Wind.Gust.HasValue)
+            {
                 WindGust = Speed.FromMetersPerSecond(apiWeatherResult.Wind.Gust.Value);
+            }
             Cloudiness = Ratio.FromPercent(apiWeatherResult.Clouds.All);
             if (apiWeatherResult.Rain != null)
             {
@@ -234,7 +242,9 @@ namespace OpenWeatherMap.Cache.Models
         public bool Equals(Readings other)
         {
             if (other == null)
+            {
                 return false;
+            }
             return FetchedTime.Equals(other.FetchedTime) && MeasuredTime.Equals(other.MeasuredTime);
         }
 

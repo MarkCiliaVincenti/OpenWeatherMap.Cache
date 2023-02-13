@@ -21,7 +21,7 @@ namespace OpenWeatherMap.Cache.Models
             }
             set
             {
-                _zip = value.Trim().ToLower();
+                _zip = value.Trim().ToLowerInvariant();
             }
         }
 
@@ -36,7 +36,7 @@ namespace OpenWeatherMap.Cache.Models
             }
             set
             {
-                _countryCode = value.Trim().ToLower();
+                _countryCode = value.Trim().ToLowerInvariant();
             }
         }
 
@@ -55,7 +55,9 @@ namespace OpenWeatherMap.Cache.Models
         public bool Equals(ZipCode other)
         {
             if (other == null)
+            {
                 return false;
+            }
             return Zip.Equals(other.Zip) && CountryCode.Equals(other.CountryCode);
         }
 

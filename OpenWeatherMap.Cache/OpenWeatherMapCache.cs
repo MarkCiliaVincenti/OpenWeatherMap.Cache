@@ -40,7 +40,7 @@ namespace OpenWeatherMap.Cache
         private readonly MemoryCache _memoryCache;
         private readonly AsyncKeyedLocker<ILocationQuery> _asyncKeyedLocker;
         private const string BASE_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather";
-        private readonly NumberFormatInfo _numberFormatInfo = new NumberFormatInfo() { NumberDecimalSeparator = "_" };
+        private readonly NumberFormatInfo _numberFormatInfo = new NumberFormatInfo { NumberDecimalSeparator = "_" };
 
         /// <summary>
         /// Initializes a new instance of <see cref="OpenWeatherMapCache"/>.
@@ -116,7 +116,9 @@ namespace OpenWeatherMap.Cache
                 using var streamReader = new StreamReader(response.GetResponseStream());
                 var content = streamReader.ReadToEnd();
                 if (_logPath != null)
+                {
                     File.WriteAllText(Path.Combine(_logPath, logFileName), content);
+                }
                 return JsonSerializer.Deserialize<ApiWeatherResult>(content);
             }
             catch (WebException webException)
@@ -159,13 +161,17 @@ namespace OpenWeatherMap.Cache
                 using var streamReader = new StreamReader(response.GetResponseStream());
                 var content = await streamReader.ReadToEndAsync().ConfigureAwait(false);
                 if (_logPath != null)
+                {
                     File.WriteAllText(Path.Combine(_logPath, logFileName), content);
+                }
                 return JsonSerializer.Deserialize<ApiWeatherResult>(content);
             }
             catch (WebException webException)
             {
                 if (cancellationToken != default && cancellationToken.IsCancellationRequested)
+                {
                     throw new OperationCanceledException(webException.Message, webException, cancellationToken);
+                }
 
                 if (webException.Status == WebExceptionStatus.ProtocolError)
                 {
@@ -177,7 +183,9 @@ namespace OpenWeatherMap.Cache
                     catch (Exception ex)
                     {
                         if (cancellationToken != default && cancellationToken.IsCancellationRequested)
+                        {
                             throw new OperationCanceledException(ex.Message, ex, cancellationToken);
+                        }
 
                         throw new OpenWeatherMapCacheException("Could not deserialize JSON content");
                     }

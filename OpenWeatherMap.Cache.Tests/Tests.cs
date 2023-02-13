@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using UnitsNet;
 using Xunit;
 
 namespace OpenWeatherMap.Cache.Tests
@@ -34,11 +31,17 @@ namespace OpenWeatherMap.Cache.Tests
                         var location = new Models.Location(48.6371, -122.1237);
                         var readings = openWeatherMapCache.GetReadings(location);
                         if (readings.IsSuccessful)
+                        {
                             Interlocked.Increment(ref totalSuccessful);
+                        }
                         if (readings.IsFromCache)
+                        {
                             Interlocked.Increment(ref totalFromCache);
+                        }
                         else
+                        {
                             Interlocked.Increment(ref totalFromAPI);
+                        }
                     }).ToList().AsParallel();
                 await Task.WhenAll(tasks);
 
