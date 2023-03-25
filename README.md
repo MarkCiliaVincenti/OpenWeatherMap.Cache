@@ -37,12 +37,12 @@ var locationQuery = new OpenWeatherMap.Cache.Models.Location(47.6371, -122.1237)
 var readings = await openWeatherMapCache.GetReadingsAsync(locationQuery);
 if (readings.IsSuccessful)
 {
-	...
+    ...
 }
 else
 {
-	var apiErrorCode = readings.Exception?.ApiErrorCode;
-	var apiErrorMessage = readings.Exception?.ApiErrorMessage;
+    var apiErrorCode = readings.Exception?.ApiErrorCode;
+    var apiErrorMessage = readings.Exception?.ApiErrorMessage;
 }
 ```
 
@@ -52,12 +52,12 @@ var locationQuery = new OpenWeatherMap.Cache.Models.ZipCode("94040", "us");
 var readings = await openWeatherMapCache.GetReadingsAsync(locationQuery);
 if (readings.IsSuccessful)
 {
-	...
+    ...
 }
 else
 {
-	var apiErrorCode = readings.Exception?.ApiErrorCode;
-	var apiErrorMessage = readings.Exception?.ApiErrorMessage;
+    var apiErrorCode = readings.Exception?.ApiErrorCode;
+    var apiErrorMessage = readings.Exception?.ApiErrorMessage;
 }
 ```
 
@@ -67,12 +67,12 @@ var locationQuery = new OpenWeatherMap.Cache.Models.Location(47.6371, -122.1237)
 var readings = openWeatherMapCache.GetReadings(locationQuery);
 if (readings.IsSuccessful)
 {
-	...
+    ...
 }
 else
 {
-	var apiErrorCode = readings.Exception?.ApiErrorCode;
-	var apiErrorMessage = readings.Exception?.ApiErrorMessage;
+    var apiErrorCode = readings.Exception?.ApiErrorCode;
+    var apiErrorMessage = readings.Exception?.ApiErrorMessage;
 }
 ```
 
@@ -82,11 +82,11 @@ var locationQuery = new OpenWeatherMap.Cache.Models.ZipCode("94040", "us");
 var readings = openWeatherMapCache.GetReadings(locationQuery);
 if (readings.IsSuccessful)
 {
-	...
+    ...
 }
 else
 {
-	var apiErrorCode = readings.Exception?.ApiErrorCode;
-	var apiErrorMessage = readings.Exception?.ApiErrorMessage;
+    var apiErrorCode = readings.Exception?.ApiErrorCode;
+    var apiErrorMessage = readings.Exception?.ApiErrorMessage;
 }
 ```
