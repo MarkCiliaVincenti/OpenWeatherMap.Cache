@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30711.63
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenWeatherMap.Cache", "OpenWeatherMap.Cache\OpenWeatherMap.Cache.csproj", "{A47E680E-0D0A-4771-B5FE-701E2B4154A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenWeatherMap.Cache.Tests", "OpenWeatherMap.Cache.Tests\OpenWeatherMap.Cache.Tests.csproj", "{8890580B-BB36-497D-80DC-1F8594D58752}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenWeatherMap.Cache.Tests", "OpenWeatherMap.Cache.Tests\OpenWeatherMap.Cache.Tests.csproj", "{8890580B-BB36-497D-80DC-1F8594D58752}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
