@@ -42,6 +42,7 @@ namespace OpenWeatherMap.Cache.Tests
                         {
                             Interlocked.Increment(ref totalFromAPI);
                         }
+                        await Task.Delay(0);
                     }).ToList().AsParallel();
                 await Task.WhenAll(tasks);
 
@@ -76,7 +77,7 @@ namespace OpenWeatherMap.Cache.Tests
                     .Select(async i =>
                     {
                         var location = new Models.Location(48.6371, -122.1237);
-                        var readings = await openWeatherMapCache.GetReadingsAsync(location).ConfigureAwait(false);
+                        var readings = await openWeatherMapCache.GetReadingsAsync(location);
                         if (readings.IsSuccessful)
                         {
                             Interlocked.Increment(ref totalSuccessful);
