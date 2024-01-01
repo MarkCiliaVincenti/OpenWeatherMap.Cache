@@ -273,7 +273,7 @@ namespace OpenWeatherMap.Cache
         /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
         public async ValueTask<Readings> GetReadingsAsync<T>(T locationQuery, CancellationToken cancellationToken = default) where T : ILocationQuery
         {
-            using (await _asyncKeyedLocker.LockAsync(locationQuery, cancellationToken).ConfigureAwait(false))
+            using (await _asyncKeyedLocker.LockAsync(locationQuery, cancellationToken, true).ConfigureAwait(true))
             {
                 var dateTime = DateTime.UtcNow;
                 var found = _memoryCache.TryGetValue(locationQuery, out Readings apiCache);
