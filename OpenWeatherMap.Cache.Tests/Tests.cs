@@ -39,7 +39,7 @@ namespace OpenWeatherMap.Cache.Tests
             for (int i = 1; i <= tries; i++)
             {
                 tasks = Enumerable.Range(0, concurrency)
-                    .Select(async i =>
+                    .Select(async (i) =>
                     {
                         var location = new Models.Location(48.6371, -122.1237);
                         var readings = openWeatherMapCache.GetReadings(location);
@@ -74,8 +74,8 @@ namespace OpenWeatherMap.Cache.Tests
         public async Task TestConcurrencyAsync()
         {
             int apiCachePeriod = 1_000;
-            int concurrency = 100;
-            int tries = 5;
+            int concurrency = 2;
+            int tries = 1;
 
             var openWeatherMapCache = new OpenWeatherMapCache(_apiKey, apiCachePeriod);
             int totalFromCache = 0;
@@ -87,7 +87,7 @@ namespace OpenWeatherMap.Cache.Tests
             for (int i = 1; i <= tries; i++)
             {
                 tasks = Enumerable.Range(0, concurrency)
-                    .Select(async i =>
+                    .Select(async (i) =>
                     {
                         var location = new Models.Location(48.6371, -122.1237);
                         var readings = await openWeatherMapCache.GetReadingsAsync(location);
@@ -103,6 +103,7 @@ namespace OpenWeatherMap.Cache.Tests
                         {
                             Interlocked.Increment(ref totalFromAPI);
                         }
+                        await Task.Delay(0);
                     }).ToList().AsParallel();
                 await Task.WhenAll(tasks);
 

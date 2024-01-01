@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using OpenWeatherMap.Cache.Constants;
 using OpenWeatherMap.Cache.Models;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -290,7 +291,7 @@ namespace OpenWeatherMap.Cache
 
                 try
                 {
-                    var apiWeatherResult = await GetApiWeatherResultFromLocationQueryAsync(locationQuery, cancellationToken).ConfigureAwait(false);
+                    var apiWeatherResult = await GetApiWeatherResultFromLocationQueryAsync(locationQuery, cancellationToken).ConfigureAwait(true);
                     var newValue = new Readings(apiWeatherResult)
                     {
                         ApiRequestMade = true
