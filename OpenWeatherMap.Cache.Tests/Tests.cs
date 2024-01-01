@@ -75,7 +75,7 @@ namespace OpenWeatherMap.Cache.Tests
         {
             int apiCachePeriod = 1_000;
             int concurrency = 100;
-            int tries = 1;
+            int tries = 5;
 
             var openWeatherMapCache = new OpenWeatherMapCache(_apiKey, apiCachePeriod);
             int totalFromCache = 0;
