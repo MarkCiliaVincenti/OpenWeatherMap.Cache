@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,11 @@ namespace OpenWeatherMap.Cache.Tests
         {
             var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
             _apiKey = config["apiKey"];
+
+            if (string.IsNullOrWhiteSpace(_apiKey) || _apiKey == "[API Key]")
+            {
+                throw new Exception("OpenWeather API key not successfully set.");
+            }
         }
 
         [Fact]
