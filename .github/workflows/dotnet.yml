@@ -25,7 +25,7 @@ jobs:
     - name: App Settings Variable Substitution
       uses: microsoft/variable-substitution@v1
       with:
-        files: 'OpenWeatherMap.Cache/OpenWeatherMap.Cache.Tests/appsettings.json'
+        files: '${{ github.workspace }}/OpenWeatherMap.Cache.Tests/appsettings.json'
       env:
         apiKey: ${{ secrets.API_KEY }}
       
