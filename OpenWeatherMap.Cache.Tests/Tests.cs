@@ -74,7 +74,7 @@ namespace OpenWeatherMap.Cache.Tests
         public async Task TestConcurrencyAsync()
         {
             int apiCachePeriod = 1_000;
-            int concurrency = 2;
+            int concurrency = 100;
             int tries = 1;
 
             var openWeatherMapCache = new OpenWeatherMapCache(_apiKey, apiCachePeriod);
