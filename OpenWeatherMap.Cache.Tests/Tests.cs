@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,13 @@ namespace OpenWeatherMap.Cache.Tests
 {
     public class Tests
     {
-        private const string apiKey = "[API Key]";
+        private string _apiKey;
+
+        public Tests()        
+        {
+            var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            _apiKey = config["apiKey"];
+        }
 
         [Fact]
         public async Task TestConcurrency()
@@ -16,7 +23,7 @@ namespace OpenWeatherMap.Cache.Tests
             int concurrency = 100;
             int tries = 5;
 
-            var openWeatherMapCache = new OpenWeatherMapCache(apiKey, apiCachePeriod);
+            var openWeatherMapCache = new OpenWeatherMapCache(_apiKey, apiCachePeriod);
             int totalFromCache = 0;
             int totalFromAPI = 0;
             int totalSuccessful = 0;
@@ -56,7 +63,7 @@ namespace OpenWeatherMap.Cache.Tests
                 }
             }
         }
-        
+
         [Fact]
         public async Task TestConcurrencyAsync()
         {
@@ -64,7 +71,7 @@ namespace OpenWeatherMap.Cache.Tests
             int concurrency = 100;
             int tries = 5;
 
-            var openWeatherMapCache = new OpenWeatherMapCache(apiKey, apiCachePeriod);
+            var openWeatherMapCache = new OpenWeatherMapCache(_apiKey, apiCachePeriod);
             int totalFromCache = 0;
             int totalFromAPI = 0;
             int totalSuccessful = 0;
