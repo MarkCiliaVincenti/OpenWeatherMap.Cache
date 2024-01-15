@@ -8,9 +8,9 @@
 		<PackageProjectUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache</PackageProjectUrl>
 		<Copyright>MIT</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Version>1.10.1</Version>
+		<Version>1.10.2</Version>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>Fix incorrect reporting of fetched from cache in async.</PackageReleaseNotes>
+		<PackageReleaseNotes>Dependency update.</PackageReleaseNotes>
 		<Description>An asynchronous .NET Standard 2.0 library that allows you to fetch &amp; cache current weather readings from the OpenWeather API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
 		<Copyright>© 2024 Mark Cilia Vincenti</Copyright>
 		<PackageTags>OpenWeather,OpenWeatherMap,cache,weather,API,.NET Standard,netstandard</PackageTags>
@@ -34,9 +34,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AsyncKeyedLock" Version="6.2.6" />
+		<PackageReference Include="AsyncKeyedLock" Version="6.3.3" />
 		<PackageReference Include="DotNet.ReproducibleBuilds" Version="1.1.1" PrivateAssets="All" />
-		<PackageReference Include="UnitsNet" Version="5.41.0" />
+		<PackageReference Include="UnitsNet" Version="5.42.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
@@ -55,7 +55,7 @@
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
-		<PackageReference Include="System.Text.Json" Version="8.0.0" />
+		<PackageReference Include="System.Text.Json" Version="8.0.1" />
 	</ItemGroup>
 
 	<ItemGroup>
