@@ -34,7 +34,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AsyncKeyedLock" Version="6.2.6" />
+		<PackageReference Include="AsyncKeyedLock" Version="6.3.3" />
 		<PackageReference Include="DotNet.ReproducibleBuilds" Version="1.1.1" PrivateAssets="All" />
 		<PackageReference Include="UnitsNet" Version="5.41.0" />
 	</ItemGroup>
