@@ -8,16 +8,16 @@
 		<PackageProjectUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache</PackageProjectUrl>
 		<Copyright>MIT</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Version>1.10.3</Version>
+		<Version>1.10.4</Version>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>Dependency update leading to performance improvement.</PackageReleaseNotes>
+		<PackageReleaseNotes>Dependency update leading to performance improvement and dependency on a vulnerable library version.</PackageReleaseNotes>
 		<Description>An asynchronous .NET Standard 2.0 library that allows you to fetch &amp; cache current weather readings from the OpenWeather API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
 		<Copyright>© 2024 Mark Cilia Vincenti</Copyright>
 		<PackageTags>OpenWeather,OpenWeatherMap,cache,weather,API,.NET Standard,netstandard</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>1.10.3.0</AssemblyVersion>
-		<FileVersion>1.10.3.0</FileVersion>
+		<AssemblyVersion>1.10.4.0</AssemblyVersion>
+		<FileVersion>1.10.4.0</FileVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IsPackable>true</IsPackable>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
@@ -34,28 +34,28 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AsyncKeyedLock" Version="6.3.4" />
-		<PackageReference Include="DotNet.ReproducibleBuilds" Version="1.1.1" PrivateAssets="All" />
-		<PackageReference Include="UnitsNet" Version="5.42.0" />
+		<PackageReference Include="AsyncKeyedLock" Version="6.4.2" />
+		<PackageReference Include="DotNet.ReproducibleBuilds" Version="1.2.4" PrivateAssets="All" />
+		<PackageReference Include="UnitsNet" Version="5.52.0" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-		<PackageReference Include="System.Text.Json" Version="6.0.7" />
+		<PackageReference Include="System.Text.Json" Version="8.0.4" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
-		<PackageReference Include="System.Text.Json" Version="6.0.7" />
+		<PackageReference Include="System.Text.Json" Version="6.0.9" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
-		<PackageReference Include="System.Text.Json" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+		<PackageReference Include="System.Text.Json" Version="8.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>
