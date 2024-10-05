@@ -5,27 +5,21 @@ namespace OpenWeatherMap.Cache.Models
     /// <summary>
     /// Class for the location with latitude and longitude.
     /// </summary>
-    public class Location : ILocationQuery, IEquatable<Location>
+    /// <remarks>
+    /// Initializes a new instance of <see cref="Location"/>.
+    /// </remarks>
+    /// <param name="latitude">The latitude of the location.</param>
+    /// <param name="longitude">The longitude of the location.</param>
+    public class Location(double latitude, double longitude) : ILocationQuery, IEquatable<Location>
     {
         /// <summary>
         /// The latitude of the <see cref="Location"/>.
         /// </summary>
-        public double Latitude { get; set; }
+        public double Latitude { get; set; } = latitude;
         /// <summary>
         /// The longitude of the <see cref="Location"/>.
         /// </summary>
-        public double Longitude { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="Location"/>.
-        /// </summary>
-        /// <param name="latitude">The latitude of the location.</param>
-        /// <param name="longitude">The longitude of the location.</param>
-        public Location(double latitude, double longitude)
-        {
-            Latitude = latitude;
-            Longitude = longitude;
-        }
+        public double Longitude { get; set; } = longitude;
 
         /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
         public bool Equals(Location other)
@@ -46,6 +40,9 @@ namespace OpenWeatherMap.Cache.Models
         /// <inheritdoc />
         public override int GetHashCode()
         {
+#if NET5_0_OR_GREATER
+            return HashCode.Combine(Latitude, Longitude);
+#else
             unchecked
             {
                 int hash = 17;
@@ -53,6 +50,7 @@ namespace OpenWeatherMap.Cache.Models
                 hash = hash * 23 + Longitude.GetHashCode();
                 return hash;
             }
+#endif
         }
     }
 }
