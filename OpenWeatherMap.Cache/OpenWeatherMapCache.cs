@@ -3,7 +3,6 @@ using Microsoft.Extensions.Caching.Memory;
 using OpenWeatherMap.Cache.Constants;
 using OpenWeatherMap.Cache.Models;
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -160,7 +159,11 @@ namespace OpenWeatherMap.Cache
             {
                 using var response = await GetResponseAsync(request, cancellationToken).ConfigureAwait(false);
                 using var streamReader = new StreamReader(response.GetResponseStream());
+#if NET7_0_OR_GREATER
+                var content = await streamReader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+#else
                 var content = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+#endif
                 if (_logPath != null)
                 {
                     File.WriteAllText(Path.Combine(_logPath, logFileName), content);

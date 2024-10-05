@@ -180,7 +180,7 @@ namespace OpenWeatherMap.Cache.Models
 
         internal Readings(ApiWeatherResult apiWeatherResult)
         {
-            Weather = new List<WeatherCondition>();
+            Weather = [];
             foreach (var weather in apiWeatherResult.Weather)
             {
                 Weather.Add(new WeatherCondition
