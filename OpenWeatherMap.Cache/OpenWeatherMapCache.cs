@@ -37,8 +37,8 @@ namespace OpenWeatherMap.Cache
         private readonly int _resiliencyPeriod;
         private readonly int _timeout;
         private readonly string _logPath;
-        private readonly MemoryCache _memoryCache;
-        private readonly AsyncKeyedLocker<ILocationQuery> _asyncKeyedLocker;
+        private readonly MemoryCache _memoryCache = new(new MemoryCacheOptions());
+        private readonly AsyncKeyedLocker<ILocationQuery> _asyncKeyedLocker = new();
         private const string BASE_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather";
         private readonly NumberFormatInfo _numberFormatInfo = new NumberFormatInfo { NumberDecimalSeparator = "_" };
 
@@ -59,12 +59,6 @@ namespace OpenWeatherMap.Cache
             _resiliencyPeriod = resiliencyPeriod;
             _timeout = timeout;
             _logPath = logPath;
-            _memoryCache = new MemoryCache(new MemoryCacheOptions());
-            _asyncKeyedLocker = new AsyncKeyedLocker<ILocationQuery>(o =>
-            {
-                o.PoolSize = 20;
-                o.PoolInitialFill = 1;
-            });
         }
 
         private static HttpWebRequest BuildHttpWebRequest(string uri, int timeout)
