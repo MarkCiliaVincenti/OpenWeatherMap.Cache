@@ -40,7 +40,7 @@ namespace OpenWeatherMap.Cache
         private readonly MemoryCache _memoryCache = new(new MemoryCacheOptions());
         private readonly AsyncKeyedLocker<ILocationQuery> _asyncKeyedLocker = new();
         private const string BASE_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather";
-        private readonly NumberFormatInfo _numberFormatInfo = new NumberFormatInfo { NumberDecimalSeparator = "_" };
+        private readonly NumberFormatInfo _numberFormatInfo = new() { NumberDecimalSeparator = "_" };
 
         /// <summary>
         /// Initializes a new instance of <see cref="OpenWeatherMapCache"/>.
