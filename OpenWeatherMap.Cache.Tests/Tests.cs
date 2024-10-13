@@ -59,14 +59,14 @@ namespace OpenWeatherMap.Cache.Tests
                     }).ToList().AsParallel();
                 await Task.WhenAll(tasks);
 
-                Assert.Equal(concurrency * i, totalSuccessful);
-                Assert.Equal((concurrency - 1) * i, totalFromCache);
-                Assert.Equal(i, totalFromAPI);
-
                 if (i < tries)
                 {
                     await Task.Delay(apiCachePeriod + 1);
                 }
+
+                Assert.Equal(concurrency * i, totalSuccessful);
+                Assert.Equal((concurrency - 1) * i, totalFromCache);
+                Assert.Equal(i, totalFromAPI);
             }
         }
 
@@ -106,14 +106,14 @@ namespace OpenWeatherMap.Cache.Tests
                     }).ToList().AsParallel();
                 await Task.WhenAll(tasks);
 
-                Assert.Equal(concurrency * i, totalSuccessful);
-                Assert.Equal((concurrency - 1) * i, totalFromCache);
-                Assert.Equal(i, totalFromAPI);
-
                 if (i < tries)
                 {
                     await Task.Delay(apiCachePeriod + 1);
                 }
+
+                Assert.Equal(concurrency * i, totalSuccessful);
+                Assert.Equal((concurrency - 1) * i, totalFromCache);
+                Assert.Equal(i, totalFromAPI);
             }
         }
     }
