@@ -1,82 +1,81 @@
 ﻿using System;
 
-namespace OpenWeatherMap.Cache.Models
+namespace OpenWeatherMap.Cache.Models;
+
+/// <summary>
+/// Class for the location with zip code (postal code) and country.
+/// </summary>
+public class ZipCode : ILocationQuery, IEquatable<ZipCode>
 {
+    private string _zip;
+    private string _countryCode;
+
     /// <summary>
-    /// Class for the location with zip code (postal code) and country.
+    /// The zip code (postal code) of the <see cref="ZipCode"/>.
     /// </summary>
-    public class ZipCode : ILocationQuery, IEquatable<ZipCode>
+    public string Zip
     {
-        private string _zip;
-        private string _countryCode;
-
-        /// <summary>
-        /// The zip code (postal code) of the <see cref="ZipCode"/>.
-        /// </summary>
-        public string Zip
+        get
         {
-            get
-            {
-                return _zip;
-            }
-            set
-            {
-                _zip = value.Trim().ToLowerInvariant();
-            }
+            return _zip;
         }
-
-        /// <summary>
-        /// The 2 letter ISO 3166-1 alpha-2 country code of the <see cref="ZipCode"/>.
-        /// </summary>
-        public string CountryCode
+        set
         {
-            get
-            {
-                return _countryCode;
-            }
-            set
-            {
-                _countryCode = value.Trim().ToLowerInvariant();
-            }
+            _zip = value.Trim().ToLowerInvariant();
         }
+    }
 
-        /// <summary>
-        /// Initializes a new instance of <see cref="ZipCode"/>.
-        /// </summary>
-        /// <param name="zip">The zip code (postal code) of the location.</param>
-        /// <param name="countryCode">The 2 letter ISO 3166-1 alpha-2 country code of the location.</param>
-        public ZipCode(string zip, string countryCode)
+    /// <summary>
+    /// The 2 letter ISO 3166-1 alpha-2 country code of the <see cref="ZipCode"/>.
+    /// </summary>
+    public string CountryCode
+    {
+        get
         {
-            Zip = zip;
-            CountryCode = countryCode;
+            return _countryCode;
         }
-
-        /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
-        public bool Equals(ZipCode other)
+        set
         {
-            if (other == null)
-            {
-                return false;
-            }
-            return Zip.Equals(other.Zip) && CountryCode.Equals(other.CountryCode);
+            _countryCode = value.Trim().ToLowerInvariant();
         }
+    }
 
-        /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
-        public override bool Equals(object obj)
+    /// <summary>
+    /// Initializes a new instance of <see cref="ZipCode"/>.
+    /// </summary>
+    /// <param name="zip">The zip code (postal code) of the location.</param>
+    /// <param name="countryCode">The 2 letter ISO 3166-1 alpha-2 country code of the location.</param>
+    public ZipCode(string zip, string countryCode)
+    {
+        Zip = zip;
+        CountryCode = countryCode;
+    }
+
+    /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
+    public bool Equals(ZipCode other)
+    {
+        if (other == null)
         {
-            return obj is ZipCode other && Equals(other);
+            return false;
         }
+        return Zip.Equals(other.Zip) && CountryCode.Equals(other.CountryCode);
+    }
 
-        /// <inheritdoc />
-        public override int GetHashCode()
+    /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
+    public override bool Equals(object obj)
+    {
+        return obj is ZipCode other && Equals(other);
+    }
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+    {
+        unchecked
         {
-            unchecked
-            {
-                int hash = 17;
-                hash = hash * 23 + Zip.GetHashCode();
-                hash = hash * 23 + CountryCode.GetHashCode();
-                return hash;
-            }
+            int hash = 17;
+            hash = hash * 23 + Zip.GetHashCode();
+            hash = hash * 23 + CountryCode.GetHashCode();
+            return hash;
         }
     }
 }

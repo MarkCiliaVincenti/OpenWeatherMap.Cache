@@ -1,13 +1,12 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace OpenWeatherMap.Cache.Models
-{
-    internal class ApiErrorResult
-    {
-        [JsonPropertyName("cod")]
-        public int Cod { get; set;  }
+namespace OpenWeatherMap.Cache.Models;
 
-        [JsonPropertyName("message")]
-        public string Message { get; set; }
-    }
+internal class ApiErrorResult
+{
+    [JsonPropertyName("cod")]
+    public int Cod { get; set;  }
+
+    [JsonPropertyName("message")]
+    public string Message { get; set; }
 }

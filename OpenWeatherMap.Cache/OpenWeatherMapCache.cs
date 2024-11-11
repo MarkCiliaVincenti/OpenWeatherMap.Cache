@@ -29,37 +29,21 @@ namespace OpenWeatherMap.Cache
     /// <summary>
     /// Class for OpenWeatherMapCache
     /// </summary>
-    public class OpenWeatherMapCache : IOpenWeatherMapCache
+    /// <remarks>
+    /// Initializes a new instance of <see cref="OpenWeatherMapCache"/>.
+    /// </remarks>
+    /// <param name="apiKey">The unique API key obtained from OpenWeatherMap.</param>
+    /// <param name="apiCachePeriod">The number of milliseconds to cache for.</param>
+    /// <param name="fetchMode">The mode of operation. Defaults to <see cref="FetchMode.AlwaysUseLastMeasuredButExtendCache"/>.</param>
+    /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod"/>.</param>
+    /// <param name="timeout">The number of milliseconds for the <see cref="WebRequest"/> timeout. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultTimeout"/>.</param>
+    /// <param name="logPath">Logs the latest result for a given location to file. Defaults to null (disabled).</param>
+    public class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Enums.FetchMode fetchMode = Enums.FetchMode.AlwaysUseLastMeasuredButExtendCache, int resiliencyPeriod = OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod, int timeout = OpenWeatherMapCacheDefaults.DefaultTimeout, string logPath = null) : IOpenWeatherMapCache
     {
-        private readonly string _apiKey;
-        private readonly int _apiCachePeriod;
-        private readonly FetchMode _fetchMode;
-        private readonly int _resiliencyPeriod;
-        private readonly int _timeout;
-        private readonly string _logPath;
         private readonly MemoryCache _memoryCache = new(new MemoryCacheOptions());
         private readonly AsyncKeyedLocker<ILocationQuery> _asyncKeyedLocker = new();
         private const string BASE_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather";
         private readonly NumberFormatInfo _numberFormatInfo = new() { NumberDecimalSeparator = "_" };
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="OpenWeatherMapCache"/>.
-        /// </summary>
-        /// <param name="apiKey">The unique API key obtained from OpenWeatherMap.</param>
-        /// <param name="apiCachePeriod">The number of milliseconds to cache for.</param>
-        /// <param name="fetchMode">The mode of operation. Defaults to <see cref="FetchMode.AlwaysUseLastMeasuredButExtendCache"/>.</param>
-        /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod"/>.</param>
-        /// <param name="timeout">The number of milliseconds for the <see cref="WebRequest"/> timeout. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultTimeout"/>.</param>
-        /// <param name="logPath">Logs the latest result for a given location to file. Defaults to null (disabled).</param>
-        public OpenWeatherMapCache(string apiKey, int apiCachePeriod, FetchMode fetchMode = FetchMode.AlwaysUseLastMeasuredButExtendCache, int resiliencyPeriod = OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod, int timeout = OpenWeatherMapCacheDefaults.DefaultTimeout, string logPath = null)
-        {
-            _apiKey = apiKey;
-            _apiCachePeriod = apiCachePeriod;
-            _fetchMode = fetchMode;
-            _resiliencyPeriod = resiliencyPeriod;
-            _timeout = timeout;
-            _logPath = logPath;
-        }
 
         private static HttpWebRequest BuildHttpWebRequest(string uri, int timeout)
         {
@@ -109,9 +93,9 @@ namespace OpenWeatherMap.Cache
                 using var response = GetResponse(request);
                 using var streamReader = new StreamReader(response.GetResponseStream());
                 var content = streamReader.ReadToEnd();
-                if (_logPath != null)
+                if (logPath != null)
                 {
-                    File.WriteAllText(Path.Combine(_logPath, logFileName), content);
+                    File.WriteAllText(Path.Combine(logPath, logFileName), content);
                 }
                 return JsonSerializer.Deserialize<ApiWeatherResult>(content);
             }
@@ -158,9 +142,9 @@ namespace OpenWeatherMap.Cache
 #else
                 var content = await streamReader.ReadToEndAsync().ConfigureAwait(false);
 #endif
-                if (_logPath != null)
+                if (logPath != null)
                 {
-                    File.WriteAllText(Path.Combine(_logPath, logFileName), content);
+                    File.WriteAllText(Path.Combine(logPath, logFileName), content);
                 }
                 return JsonSerializer.Deserialize<ApiWeatherResult>(content);
             }
@@ -233,12 +217,12 @@ namespace OpenWeatherMap.Cache
             switch (locationQuery)
             {
                 case Location location:
-                    var locationApiUrl = $"{BASE_WEATHER_URI}?lat={location.Latitude}&lon={location.Longitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
-                    return GetApiWeatherResultFromUri(location, locationApiUrl, _timeout);
+                    var locationApiUrl = $"{BASE_WEATHER_URI}?lat={location.Latitude}&lon={location.Longitude}&appid={apiKey}&cache={Guid.NewGuid()}";
+                    return GetApiWeatherResultFromUri(location, locationApiUrl, timeout);
 
                 case ZipCode zipCode:
-                    var zipCodeApiUrl = $"{BASE_WEATHER_URI}?zip={zipCode.Zip},{zipCode.CountryCode}&appid={_apiKey}&cache={Guid.NewGuid()}";
-                    return GetApiWeatherResultFromUri(zipCode, zipCodeApiUrl, _timeout);
+                    var zipCodeApiUrl = $"{BASE_WEATHER_URI}?zip={zipCode.Zip},{zipCode.CountryCode}&appid={apiKey}&cache={Guid.NewGuid()}";
+                    return GetApiWeatherResultFromUri(zipCode, zipCodeApiUrl, timeout);
 
                 default:
                     throw new ArgumentException("Unsupported type provided", nameof(locationQuery));
@@ -250,12 +234,12 @@ namespace OpenWeatherMap.Cache
             switch (locationQuery)
             {
                 case Location location:
-                    var locationApiUrl = $"{BASE_WEATHER_URI}?lat={location.Latitude}&lon={location.Longitude}&appid={_apiKey}&cache={Guid.NewGuid()}";
-                    return GetApiWeatherResultFromUriAsync(location, locationApiUrl, _timeout, cancellationToken);
+                    var locationApiUrl = $"{BASE_WEATHER_URI}?lat={location.Latitude}&lon={location.Longitude}&appid={apiKey}&cache={Guid.NewGuid()}";
+                    return GetApiWeatherResultFromUriAsync(location, locationApiUrl, timeout, cancellationToken);
 
                 case ZipCode zipCode:
-                    var zipCodeApiUrl = $"{BASE_WEATHER_URI}?zip={zipCode.Zip},{zipCode.CountryCode}&appid={_apiKey}&cache={Guid.NewGuid()}";
-                    return GetApiWeatherResultFromUriAsync(zipCode, zipCodeApiUrl, _timeout, cancellationToken);
+                    var zipCodeApiUrl = $"{BASE_WEATHER_URI}?zip={zipCode.Zip},{zipCode.CountryCode}&appid={apiKey}&cache={Guid.NewGuid()}";
+                    return GetApiWeatherResultFromUriAsync(zipCode, zipCodeApiUrl, timeout, cancellationToken);
 
                 default:
                     throw new ArgumentException("Unsupported type provided", nameof(locationQuery));
@@ -278,7 +262,7 @@ namespace OpenWeatherMap.Cache
                 if (found)
                 {
                     var timeElapsed = dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds;
-                    if (timeElapsed <= _apiCachePeriod)
+                    if (timeElapsed <= apiCachePeriod)
                     {
                         apiCache.IsFromCache = true;
                         apiCache.ApiRequestMade = false;
@@ -294,22 +278,22 @@ namespace OpenWeatherMap.Cache
                         ApiRequestMade = true
                     };
 
-                    if (!found || !apiCache.IsSuccessful || _fetchMode == FetchMode.AlwaysUseLastFetchedValue || (newValue.MeasuredTime >= apiCache.MeasuredTime))
+                    if (!found || !apiCache.IsSuccessful || fetchMode == FetchMode.AlwaysUseLastFetchedValue || (newValue.MeasuredTime >= apiCache.MeasuredTime))
                     {
                         _memoryCache.Set(locationQuery, newValue, new MemoryCacheEntryOptions
                         {
-                            AbsoluteExpiration = newValue.FetchedTime.AddMilliseconds(_resiliencyPeriod)
+                            AbsoluteExpiration = newValue.FetchedTime.AddMilliseconds(resiliencyPeriod)
                         });
                         return newValue;
                     }
                     else
                     {
-                        if (_fetchMode == FetchMode.AlwaysUseLastMeasuredButExtendCache)
+                        if (fetchMode == FetchMode.AlwaysUseLastMeasuredButExtendCache)
                         {
                             apiCache.FetchedTime = newValue.FetchedTime;
                             _memoryCache.Set(locationQuery, apiCache, new MemoryCacheEntryOptions
                             {
-                                AbsoluteExpiration = apiCache.FetchedTime.AddMilliseconds(_resiliencyPeriod)
+                                AbsoluteExpiration = apiCache.FetchedTime.AddMilliseconds(resiliencyPeriod)
                             });
                         }
                         apiCache.IsFromCache = false;
@@ -319,7 +303,7 @@ namespace OpenWeatherMap.Cache
                 }
                 catch (OpenWeatherMapCacheException exception)
                 {
-                    if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= _resiliencyPeriod)
+                    if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= resiliencyPeriod)
                     {
                         apiCache.IsFromCache = true;
                         apiCache.ApiRequestMade = false;
@@ -346,7 +330,7 @@ namespace OpenWeatherMap.Cache
                 if (found)
                 {
                     var timeElapsed = dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds;
-                    if (timeElapsed <= _apiCachePeriod)
+                    if (timeElapsed <= apiCachePeriod)
                     {
                         apiCache.IsFromCache = true;
                         apiCache.ApiRequestMade = false;
@@ -362,22 +346,22 @@ namespace OpenWeatherMap.Cache
                         ApiRequestMade = true
                     };
 
-                    if (!found || !apiCache.IsSuccessful || _fetchMode == FetchMode.AlwaysUseLastFetchedValue || (newValue.MeasuredTime >= apiCache.MeasuredTime))
+                    if (!found || !apiCache.IsSuccessful || fetchMode == FetchMode.AlwaysUseLastFetchedValue || (newValue.MeasuredTime >= apiCache.MeasuredTime))
                     {
                         _memoryCache.Set(locationQuery, newValue, new MemoryCacheEntryOptions
                         {
-                            AbsoluteExpiration = newValue.FetchedTime.AddMilliseconds(_resiliencyPeriod)
+                            AbsoluteExpiration = newValue.FetchedTime.AddMilliseconds(resiliencyPeriod)
                         });
                         return newValue;
                     }
                     else
                     {
-                        if (_fetchMode == FetchMode.AlwaysUseLastMeasuredButExtendCache)
+                        if (fetchMode == FetchMode.AlwaysUseLastMeasuredButExtendCache)
                         {
                             apiCache.FetchedTime = newValue.FetchedTime;
                             _memoryCache.Set(locationQuery, apiCache, new MemoryCacheEntryOptions
                             {
-                                AbsoluteExpiration = apiCache.FetchedTime.AddMilliseconds(_resiliencyPeriod)
+                                AbsoluteExpiration = apiCache.FetchedTime.AddMilliseconds(resiliencyPeriod)
                             });
                         }
                         apiCache.IsFromCache = false;
@@ -387,7 +371,7 @@ namespace OpenWeatherMap.Cache
                 }
                 catch (OpenWeatherMapCacheException exception)
                 {
-                    if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= _resiliencyPeriod)
+                    if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= resiliencyPeriod)
                     {
                         apiCache.IsFromCache = true;
                         apiCache.ApiRequestMade = false;

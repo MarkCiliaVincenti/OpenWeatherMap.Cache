@@ -4,5 +4,6 @@
 	  <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
 	  <CheckNotRecommendedTargetFramework>false</CheckNotRecommendedTargetFramework>
 	  <CheckEolTargetFramework>false</CheckEolTargetFramework>
+	  
   </PropertyGroup>
 </Project>
