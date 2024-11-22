@@ -8,16 +8,16 @@
 		<PackageProjectUrl>https://github.com/MarkCiliaVincenti/OpenWeatherMap.Cache</PackageProjectUrl>
 		<Copyright>MIT</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Version>1.12.1</Version>
+		<Version>1.12.2</Version>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>Dependency update and cleaning.</PackageReleaseNotes>
+		<PackageReleaseNotes>Dependency update.</PackageReleaseNotes>
 		<Description>An asynchronous .NET Standard 2.0 library that allows you to fetch &amp; cache current weather readings from the OpenWeather API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
 		<Copyright>© 2024 Mark Cilia Vincenti</Copyright>
 		<PackageTags>OpenWeather,OpenWeatherMap,cache,weather,API,.NET Standard,netstandard</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>1.12.1.0</AssemblyVersion>
-		<FileVersion>1.12.1.0</FileVersion>
+		<AssemblyVersion>1.12.2.0</AssemblyVersion>
+		<FileVersion>1.12.2.0</FileVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IsPackable>true</IsPackable>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
@@ -41,7 +41,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
 		<PackageReference Include="System.Text.Json" />
-		<PackageReference Include="System.Threading.Tasks.Extensions" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))" />
+		<PackageReference Include="System.Threading.Tasks.Extensions" Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))" />
 	</ItemGroup>
 
 	<ItemGroup>
