@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenWeatherMap.Cache.Tests"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{93A3FAAE-8CAB-46EE-8578-7B8FBDE80983}"
 	ProjectSection(SolutionItems) = preProject
+		codecov.yml = codecov.yml
+		coverlet.runsettings = coverlet.runsettings
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
