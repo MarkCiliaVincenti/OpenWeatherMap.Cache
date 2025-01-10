@@ -12,22 +12,22 @@
 		<PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1" />
 		<PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.0" />
 		<PackageVersion Include="UnitsNet" Version="5.61.0" />
-		<PackageVersion Include="xunit" Version="2.9.2" />
+		<PackageVersion Include="xunit" Version="2.9.3" />
 		<PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
 	</ItemGroup>
 	<ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
 		<PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
 		<PackageVersion Include="System.Text.Json" Version="9.0.0" />
-		<PackageVersion Include="Microsoft.Extensions.Configuration" Version="6.0.2" />
-		<PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="6.0.1" />
+		<PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+		<PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
 	</ItemGroup>
 	<ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) and !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
 		<PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
 		<PackageVersion Include="System.Text.Json" Version="9.0.0" />
-		<PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-		<PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+		<PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+		<PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
 	</ItemGroup>
 	<ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
 		<PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
