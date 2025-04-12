@@ -3,17 +3,17 @@
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageVersion Include="AsyncKeyedLock" Version="7.1.4" />
-		<PackageVersion Include="coverlet.collector" Version="6.0.2" />
+		<PackageVersion Include="AsyncKeyedLock" Version="7.1.6" />
+		<PackageVersion Include="coverlet.collector" Version="6.0.4" />
 		<PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.2.25" />
 		<PackageVersion Include="FluentAssertions" Version="6.12.1" />
-		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
 		<PackageVersion Include="System.Net.Http" Version="4.3.4" />
 		<PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1" />
-		<PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.0" />
-		<PackageVersion Include="UnitsNet" Version="5.60.0" />
-		<PackageVersion Include="xunit" Version="2.9.2" />
-		<PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+		<PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
+		<PackageVersion Include="UnitsNet" Version="5.74.0" />
+		<PackageVersion Include="xunit" Version="2.9.3" />
+		<PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />
 	</ItemGroup>
 	<ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
 		<PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="6.0.3" />
@@ -30,10 +30,10 @@
 		<PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
 	</ItemGroup>
 	<ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
-		<PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
-		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
-		<PackageVersion Include="System.Text.Json" Version="9.0.0" />
-		<PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
-		<PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+		<PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.4" />
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
+		<PackageVersion Include="System.Text.Json" Version="9.0.4" />
+		<PackageVersion Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
+		<PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.4" />
 	</ItemGroup>
 </Project>
