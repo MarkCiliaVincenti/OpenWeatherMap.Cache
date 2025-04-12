@@ -35,9 +35,15 @@ jobs:
     - name: Build
       run: dotnet build --no-restore --configuration Release
       
-    - name: Test
-      run: dotnet test --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
+    - name: Test .NET 7.0
+      run: dotnet test --framework net7.0 --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
       
+    - name: Test .NET 8.0
+      run: dotnet test --framework net8.0 --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
+
+    - name: Test .NET 9.0
+      run: dotnet test --framework net9.0 --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
+
     - name: Code Coverage
       uses: codecov/codecov-action@v5
       with:
