@@ -197,4 +197,13 @@ public class Tests
         Assert.False(reading.IsFromCache);
     }
 
+    [Fact]
+    public void LocationMatches()
+    {
+        var location1 = new Location(48.6371, -122.1237);
+        var location2 = new Location(48.6371, -122.1237);
+        var location3 = new Location(37.7749, -122.4194);
+        Assert.True(location1.Equals(location2));
+        Assert.False(location1.Equals(location3));
+    }
 }
