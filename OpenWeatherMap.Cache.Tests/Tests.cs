@@ -180,7 +180,7 @@ public class Tests
         Directory.CreateDirectory(tempDir);
 
         var cache = new OpenWeatherMapCache(_apiKey, 1000, logPath: tempDir);
-        var location = new Models.Location(48.8566, 2.3522);
+        var location = new Location(48.8566, 2.3522);
 
         var _ = cache.GetReadings(location);
 
