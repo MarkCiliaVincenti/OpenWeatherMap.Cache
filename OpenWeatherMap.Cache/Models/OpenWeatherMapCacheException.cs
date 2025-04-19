@@ -31,4 +31,8 @@ public sealed class OpenWeatherMapCacheException : Exception
         ApiErrorCode = apiErrorResult.Cod;
         ApiErrorMessage = apiErrorResult.Message;
     }
+
+    internal OpenWeatherMapCacheException(string message, Exception innerException)
+        : base($"Exception during API call: {message}", innerException)
+    { }
 }

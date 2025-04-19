@@ -40,6 +40,9 @@ public class Location(double latitude, double longitude) : ILocationQuery, IEqua
     /// <inheritdoc />
     public override int GetHashCode()
     {
+#if NET5_0_OR_GREATER
+        return HashCode.Combine(Latitude, Longitude);
+#else
         unchecked
         {
             int hash = 17;
@@ -47,5 +50,6 @@ public class Location(double latitude, double longitude) : ILocationQuery, IEqua
             hash = hash * 23 + Longitude.GetHashCode();
             return hash;
         }
+#endif
     }
 }
