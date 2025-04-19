@@ -241,4 +241,15 @@ public class Tests
         Assert.Equal(0, location.Longitude);
         Assert.True(location.Equals(new Location(0, 0)));
     }
+
+    [Fact]
+    public void InvalidLocation()
+    {
+        var location = new Location(10_000_000, 10_000_000);
+        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+
+        var reading = cache.GetReadings(location);
+        Assert.False(reading.IsSuccessful);
+        Assert.NotNull(reading.Exception.Message);
+    }
 }
