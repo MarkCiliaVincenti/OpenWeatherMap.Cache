@@ -164,7 +164,7 @@ public class Tests
         var cache = new OpenWeatherMapCache(_apiKey, 1000, logPath: tempDir);
         var location = new Models.Location(48.8566, 2.3522);
 
-        var result = await cache.GetReadingsAsync(location);
+        var _ = await cache.GetReadingsAsync(location);
 
         var expectedFile = Path.Combine(tempDir, $"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json");
         Assert.True(File.Exists(expectedFile));
@@ -182,7 +182,7 @@ public class Tests
         var cache = new OpenWeatherMapCache(_apiKey, 1000, logPath: tempDir);
         var location = new Models.Location(48.8566, 2.3522);
 
-        var result = cache.GetReadings(location);
+        var _ = cache.GetReadings(location);
 
         var expectedFile = Path.Combine(tempDir, $"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json");
         Assert.True(File.Exists(expectedFile));
