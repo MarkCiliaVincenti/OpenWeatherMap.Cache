@@ -205,6 +205,7 @@ public class Tests
         var location3 = new Location(37.7749, -122.4194);
         Assert.True(location1.Equals(location2));
         Assert.False(location1.Equals(location3));
+        Assert.False(location1.Equals(null));
     }
 
     [Fact]
