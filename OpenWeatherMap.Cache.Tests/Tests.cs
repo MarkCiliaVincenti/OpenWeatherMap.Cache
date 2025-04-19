@@ -174,6 +174,24 @@ public class Tests
     }
 
     [Fact]
+    public void GetReadings_ShouldLogResponse_WhenLogPathIsSet()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        var cache = new OpenWeatherMapCache(_apiKey, 1000, logPath: tempDir);
+        var location = new Models.Location(48.8566, 2.3522);
+
+        var result = cache.GetReadings(location);
+
+        var expectedFile = Path.Combine(tempDir, $"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json");
+        Assert.True(File.Exists(expectedFile));
+
+        // Cleanup
+        Directory.Delete(tempDir, true);
+    }
+
+    [Fact]
     public void GetReadings_SynchronousMethod_ReturnsValidReading()
     {
         var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
