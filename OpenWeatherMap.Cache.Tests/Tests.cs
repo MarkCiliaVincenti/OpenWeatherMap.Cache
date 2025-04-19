@@ -206,4 +206,20 @@ public class Tests
         Assert.True(location1.Equals(location2));
         Assert.False(location1.Equals(location3));
     }
+
+    [Fact]
+    public void LocationLongitudeAndLatitude()
+    {
+        var longitude = 48.6371;
+        var latitude = -122.1237;
+
+        var location = new Location(latitude, longitude);
+        Assert.Equal(latitude, location.Latitude);
+        Assert.Equal(longitude, location.Longitude);
+        location.Latitude = 0;
+        location.Longitude = 0;
+        Assert.Equal(0, location.Latitude);
+        Assert.Equal(0, location.Longitude);
+        Assert.True(location.Equals(new Location(0, 0)));
+    }
 }
