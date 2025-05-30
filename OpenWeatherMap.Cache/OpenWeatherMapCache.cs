@@ -67,7 +67,7 @@ namespace OpenWeatherMap.Cache
                     File.WriteAllText(Path.Combine(logPath, logFileName), content);
                 }
 
-                return JsonSerializer.Deserialize<ApiWeatherResult>(content);
+                return JsonSerializer.Deserialize(content, ApiWeatherResultJsonContext.Default.ApiWeatherResult);
             }
             catch (AggregateException ae) when (ae.InnerException is HttpRequestException hre)
             {
@@ -113,7 +113,7 @@ namespace OpenWeatherMap.Cache
                     File.WriteAllText(Path.Combine(logPath, logFileName), content);
                 }
 
-                return JsonSerializer.Deserialize<ApiWeatherResult>(content);
+                return JsonSerializer.Deserialize(content, ApiWeatherResultJsonContext.Default.ApiWeatherResult);
             }
             catch (HttpRequestException ex)
             {
