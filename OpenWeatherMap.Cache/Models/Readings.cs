@@ -46,12 +46,7 @@ public sealed class WeatherCondition : IEquatable<WeatherCondition>
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        unchecked
-        {
-            int hash = 17;
-            hash = hash * 23 + ConditionId.GetHashCode();
-            return hash;
-        }
+        return HashCode.Combine(ConditionId);
     }
 }
 
@@ -257,12 +252,6 @@ public sealed class Readings : IEquatable<Readings>
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        unchecked
-        {
-            int hash = 17;
-            hash = hash * 23 + FetchedTime.GetHashCode();
-            hash = hash * 23 + MeasuredTime.GetHashCode();
-            return hash;
-        }
+        return HashCode.Combine(FetchedTime, MeasuredTime);
     }
 }

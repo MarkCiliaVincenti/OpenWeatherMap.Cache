@@ -70,12 +70,6 @@ public class ZipCode : ILocationQuery, IEquatable<ZipCode>
     /// <inheritdoc />
     public override int GetHashCode()
     {
-        unchecked
-        {
-            int hash = 17;
-            hash = hash * 23 + Zip.GetHashCode();
-            hash = hash * 23 + CountryCode.GetHashCode();
-            return hash;
-        }
+        return HashCode.Combine(Zip, CountryCode);
     }
 }
