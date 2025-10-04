@@ -5,7 +5,7 @@ namespace OpenWeatherMap.Cache.Models;
 /// <summary>
 /// Class for the location with zip code (postal code) and country.
 /// </summary>
-public class ZipCode : ILocationQuery, IEquatable<ZipCode>
+public sealed class ZipCode : ILocationQuery, IEquatable<ZipCode>
 {
     private string _zip;
     private string _countryCode;

@@ -10,7 +10,7 @@ namespace OpenWeatherMap.Cache.Models;
 /// </remarks>
 /// <param name="latitude">The latitude of the location.</param>
 /// <param name="longitude">The longitude of the location.</param>
-public class Location(double latitude, double longitude) : ILocationQuery, IEquatable<Location>
+public sealed class Location(double latitude, double longitude) : ILocationQuery, IEquatable<Location>
 {
     /// <summary>
     /// The latitude of the <see cref="Location"/>.

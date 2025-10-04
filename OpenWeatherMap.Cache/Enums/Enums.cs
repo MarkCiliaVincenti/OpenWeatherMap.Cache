@@ -5,7 +5,7 @@ namespace OpenWeatherMap.Cache;
 /// <summary>
 /// Enumeration class for OpenWeatherMap.Cache
 /// </summary>
-public class Enums
+public sealed class Enums
 {
     /// <summary>
     /// If the time elapsed since the last fetch for the given location exceeds the cache period (i.e. a new API call is required)

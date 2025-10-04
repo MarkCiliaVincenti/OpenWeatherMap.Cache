@@ -12,7 +12,7 @@ internal sealed class DefaultHttpClientFactory(int timeout) : IHttpClientFactory
     public HttpClient CreateClient(string name) => HttpClientService.CreateHttpClient(timeout);
 }
 
-internal class HttpClientService
+internal sealed class HttpClientService
 {
     private readonly HttpClient _httpClient;
 

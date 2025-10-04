@@ -2,7 +2,7 @@
 
 namespace OpenWeatherMap.Cache.Models;
 
-internal class ApiErrorResult
+internal sealed class ApiErrorResult
 {
     [JsonPropertyName("cod")]
     public int Cod { get; set;  }
