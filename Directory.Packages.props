@@ -18,11 +18,11 @@
   </ItemGroup>
   <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="6.0.3" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.10" />
     <PackageVersion Include="System.Text.Json" Version="6.0.11" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="6.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="6.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.Http" Version="6.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.10" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) and !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
