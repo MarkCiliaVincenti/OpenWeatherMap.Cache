@@ -2,17 +2,16 @@
 using Microsoft.Extensions.Caching.Memory;
 using OpenWeatherMap.Cache.Constants;
 using OpenWeatherMap.Cache.Models;
+using OpenWeatherMap.Cache.Services;
 using System;
 using System.Globalization;
 using System.IO;
-using System.Net.Cache;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using static OpenWeatherMap.Cache.Enums;
-using OpenWeatherMap.Cache.Services;
 
 namespace OpenWeatherMap.Cache;
 
@@ -97,20 +96,24 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
             response.EnsureSuccessStatusCode();
 
 #if NET5_0_OR_GREATER
-            using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using var stream = await response.Content.ReadAsStreamAsync(cts.Token).ConfigureAwait(false);
 #else
             using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 #endif
             using var streamReader = new StreamReader(stream);
 #if NET7_0_OR_GREATER
-            var content = await streamReader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+            var content = await streamReader.ReadToEndAsync(cts.Token).ConfigureAwait(false);
 #else
             var content = await streamReader.ReadToEndAsync().ConfigureAwait(false);
 #endif
 
             if (logPath != null)
             {
+#if NETSTANDARD2_0
                 File.WriteAllText(Path.Combine(logPath, logFileName), content);
+#else
+                await File.WriteAllTextAsync(Path.Combine(logPath, logFileName), content, cancellationToken);
+#endif
             }
 
             return JsonSerializer.Deserialize(content, ApiWeatherResultJsonContext.Default.ApiWeatherResult);
@@ -132,7 +135,6 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
             throw new OpenWeatherMapCacheException("Unexpected error: " + ex.Message);
         }
     }
-
 
     private ApiWeatherResult GetApiWeatherResultFromUri(Location location, string uri, int timeout) =>
         GetApiWeatherResultFromUri($"{location.Latitude.ToString(_numberFormatInfo)}-{location.Longitude.ToString(_numberFormatInfo)}.json", uri, timeout);

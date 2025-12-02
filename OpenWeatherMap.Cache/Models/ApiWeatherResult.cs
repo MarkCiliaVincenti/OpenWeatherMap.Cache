@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using static OpenWeatherMap.Cache.Models.ApiWeatherResult;
 
 namespace OpenWeatherMap.Cache.Models;
 

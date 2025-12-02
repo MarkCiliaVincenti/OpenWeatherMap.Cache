@@ -1,4 +1,6 @@
-﻿namespace OpenWeatherMap.Cache.Models;
+﻿using System;
+
+namespace OpenWeatherMap.Cache.Models;
 
 /// <summary>
 /// Interface for a location query
