@@ -224,6 +224,37 @@ public class Tests
         Assert.True(location1.Equals(location2));
         Assert.False(location1.Equals(location3));
         Assert.False(location1.Equals(null));
+        Assert.False(location1.Equals(new object()));
+    }
+
+    [Fact]
+    public void ZipCodeMatches()
+    {
+        var location1 = new ZipCode("90210", "US");
+        var location2 = new ZipCode("90210", "US");
+        var location3 = new ZipCode("90211", "US");
+        Assert.True(location1.Equals(location2));
+        Assert.False(location1.Equals(location3));
+        Assert.False(location1.Equals(null));
+        Assert.False(location1.Equals(new object()));
+    }
+
+    [Fact]
+    public async Task ReadingsMatch()
+    {
+        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        var zipCode = new ZipCode("90210", "US");
+
+        var reading = await cache.GetReadingsAsync(zipCode);
+        var reading2 = await cache.GetReadingsAsync(zipCode);
+
+        Assert.True(reading.Weather.First().Equals(reading2.Weather.First()));
+        Assert.False(reading.Weather.First().Equals(null));
+        Assert.False(reading.Weather.First().Equals(new object()));
+
+        Assert.True(reading.Equals(reading2));
+        Assert.False(reading.Equals(null));
+        Assert.False(reading.Equals(new object()));
     }
 
     [Fact]

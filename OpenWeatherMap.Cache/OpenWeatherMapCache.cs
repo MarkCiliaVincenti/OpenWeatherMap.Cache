@@ -72,13 +72,13 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
         {
             throw new OpenWeatherMapCacheException($"HTTP request failed: {hre.Message}", hre);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
-            throw new OpenWeatherMapCacheException("Could not deserialize JSON content");
+            throw new OpenWeatherMapCacheException("Could not deserialize JSON content", ex);
         }
         catch (Exception ex)
         {
-            throw new OpenWeatherMapCacheException(ex.Message);
+            throw new OpenWeatherMapCacheException(ex.Message, ex);
         }
     }
 
@@ -120,19 +120,19 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
         }
         catch (HttpRequestException ex)
         {
-            throw new OpenWeatherMapCacheException("HTTP request failed: " + ex.Message);
+            throw new OpenWeatherMapCacheException("HTTP request failed: " + ex.Message, ex);
         }
         catch (TaskCanceledException ex) when (cts.IsCancellationRequested)
         {
             throw new OperationCanceledException("Request was canceled", ex, cancellationToken);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
-            throw new OpenWeatherMapCacheException("Could not deserialize JSON content");
+            throw new OpenWeatherMapCacheException("Could not deserialize JSON content", ex);
         }
         catch (Exception ex)
         {
-            throw new OpenWeatherMapCacheException("Unexpected error: " + ex.Message);
+            throw new OpenWeatherMapCacheException("Unexpected error: " + ex.Message, ex);
         }
     }
 
