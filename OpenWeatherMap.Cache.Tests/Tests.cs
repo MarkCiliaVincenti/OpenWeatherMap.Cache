@@ -252,7 +252,7 @@ public class Tests
         var zipCode = new ZipCode("90210", "US");
 
         var reading = await cache.GetReadingsAsync(zipCode);
-        var reading2 = await cache.GetReadingsAsync(zipCode);
+        var reading2 = cache.GetReadings(zipCode);
 
         Assert.Equal(reading.Weather.First().GetHashCode(), reading2.Weather.First().GetHashCode());
         Assert.True(reading.Weather.First().Equals(reading2.Weather.First()));
@@ -303,5 +303,15 @@ public class Tests
         var serviceProvider = services.BuildServiceProvider();
         var cache = serviceProvider.GetService<IOpenWeatherMapCache>();
         Assert.NotNull(cache);
+    }
+
+    private class InheritedInvalidQuery : InvalidQuery { }
+
+    [Fact]
+    public void Unsupported_Inherited_ILocationQuery_ShouldThrowException()
+    {
+        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        var invalidQuery = new InheritedInvalidQuery();
+        Assert.Throws<ArgumentException>(() => cache.GetReadings(invalidQuery));
     }
 }
