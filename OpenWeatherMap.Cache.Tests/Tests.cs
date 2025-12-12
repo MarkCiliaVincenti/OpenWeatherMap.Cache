@@ -301,7 +301,7 @@ public class Tests
         var services = new ServiceCollection();
         services.AddOpenWeatherMapCache("", 1);
         var serviceProvider = services.BuildServiceProvider();
-        var cache = serviceProvider.GetService<OpenWeatherMapCache>();
+        var cache = serviceProvider.GetService<IOpenWeatherMapCache>();
         Assert.NotNull(cache);
     }
 }
