@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using OpenWeatherMap.Cache.Extensions;
 using OpenWeatherMap.Cache.Models;
 using System;
 using System.IO;
@@ -221,7 +223,9 @@ public class Tests
         var location1 = new Location(48.6371, -122.1237);
         var location2 = new Location(48.6371, -122.1237);
         var location3 = new Location(37.7749, -122.4194);
+        Assert.Equal(location1.GetHashCode(), location2.GetHashCode());
         Assert.True(location1.Equals(location2));
+        Assert.True(location1.Equals((object)location2));
         Assert.False(location1.Equals(location3));
         Assert.False(location1.Equals(null));
         Assert.False(location1.Equals(new object()));
@@ -233,7 +237,9 @@ public class Tests
         var location1 = new ZipCode("90210", "US");
         var location2 = new ZipCode("90210", "US");
         var location3 = new ZipCode("90211", "US");
+        Assert.Equal(location1.GetHashCode(), location2.GetHashCode());
         Assert.True(location1.Equals(location2));
+        Assert.True(location1.Equals((object)location2));
         Assert.False(location1.Equals(location3));
         Assert.False(location1.Equals(null));
         Assert.False(location1.Equals(new object()));
@@ -248,11 +254,15 @@ public class Tests
         var reading = await cache.GetReadingsAsync(zipCode);
         var reading2 = await cache.GetReadingsAsync(zipCode);
 
+        Assert.Equal(reading.Weather.First().GetHashCode(), reading2.Weather.First().GetHashCode());
         Assert.True(reading.Weather.First().Equals(reading2.Weather.First()));
+        Assert.True(reading.Weather.First().Equals((object)reading2.Weather.First()));
         Assert.False(reading.Weather.First().Equals(null));
         Assert.False(reading.Weather.First().Equals(new object()));
 
+        Assert.Equal(reading.GetHashCode(), reading2.GetHashCode());
         Assert.True(reading.Equals(reading2));
+        Assert.True(reading.Equals((object)reading2));
         Assert.False(reading.Equals(null));
         Assert.False(reading.Equals(new object()));
     }
@@ -271,6 +281,7 @@ public class Tests
         Assert.Equal(0, location.Latitude);
         Assert.Equal(0, location.Longitude);
         Assert.True(location.Equals(new Location(0, 0)));
+        Assert.True(location.Equals((object)new Location(0, 0)));
     }
 
     [Fact]
@@ -282,5 +293,15 @@ public class Tests
         var reading = cache.GetReadings(location);
         Assert.False(reading.IsSuccessful);
         Assert.NotNull(reading.Exception.Message);
+    }
+
+    [Fact]
+    public void AddOpenWeatherMapCache_DoesNotThrowException()
+    {
+        var services = new ServiceCollection();
+        services.AddOpenWeatherMapCache("", 1);
+        var serviceProvider = services.BuildServiceProvider();
+        var cache = serviceProvider.GetService<OpenWeatherMapCache>();
+        Assert.NotNull(cache);
     }
 }
