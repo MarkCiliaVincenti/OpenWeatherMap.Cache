@@ -1,7 +1,7 @@
 # ![OpenWeatherMap.Cache](https://raw.githubusercontent.com/MarkCiliaVincenti/OpenWeatherMap.Cache/master/logo32.png)&nbsp;OpenWeatherMap.Cache
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/MarkCiliaVincenti/OpenWeatherMap.Cache/dotnet.yml?branch=master&logo=github&style=flat)](https://actions-badge.atrox.dev/MarkCiliaVincenti/OpenWeatherMap.Cache/goto?ref=master) [![NuGet](https://img.shields.io/nuget/v/OpenWeatherMap.Cache?label=NuGet&logo=nuget&style=flat)](https://www.nuget.org/packages/OpenWeatherMap.Cache) [![NuGet](https://img.shields.io/nuget/dt/OpenWeatherMap.Cache?logo=nuget&style=flat)](https://www.nuget.org/packages/OpenWeatherMap.Cache) [![Codacy Grade](https://img.shields.io/codacy/grade/97ab1ec47ec4454084fa28069a5070a5?style=flat)](https://app.codacy.com/gh/MarkCiliaVincenti/OpenWeatherMap.Cache/dashboard) [![Codecov](https://img.shields.io/codecov/c/github/MarkCiliaVincenti/OpenWeatherMap.Cache?label=Coverage&logo=codecov&style=flat)](https://app.codecov.io/gh/MarkCiliaVincenti/OpenWeatherMap.Cache)
 
-An asynchronous .NET Standard 2.0 library that allows you to fetch & cache current weather readings from the [OpenWeather](https://openweathermap.org/) API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.
+An asynchronous .NET library that allows you to fetch & cache current weather readings from the [OpenWeather](https://openweathermap.org/) API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.
 
 Supports .NET Framework 4.6.1 or later, .NET Core 2.0 or later, and .NET 5.0 or later.
 
