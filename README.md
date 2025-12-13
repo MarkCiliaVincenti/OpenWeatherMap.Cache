@@ -39,11 +39,6 @@ if (readings.IsSuccessful)
 {
     ...
 }
-else
-{
-    var apiErrorCode = readings.Exception?.ApiErrorCode;
-    var apiErrorMessage = readings.Exception?.ApiErrorMessage;
-}
 ```
 
 or by zip code (post code) and country code:
@@ -54,11 +49,6 @@ if (readings.IsSuccessful)
 {
     ...
 }
-else
-{
-    var apiErrorCode = readings.Exception?.ApiErrorCode;
-    var apiErrorMessage = readings.Exception?.ApiErrorMessage;
-}
 ```
 
 or by city name and country code:
@@ -68,11 +58,6 @@ var readings = await openWeatherMapCache.GetReadingsAsync(locationQuery);
 if (readings.IsSuccessful)
 {
     ...
-}
-else
-{
-    var apiErrorCode = readings.Exception?.ApiErrorCode;
-    var apiErrorMessage = readings.Exception?.ApiErrorMessage;
 }
 ```
 
@@ -84,11 +69,6 @@ if (readings.IsSuccessful)
 {
     ...
 }
-else
-{
-    var apiErrorCode = readings.Exception?.ApiErrorCode;
-    var apiErrorMessage = readings.Exception?.ApiErrorMessage;
-}
 ```
 
 or by zip code (post code) and country code:
@@ -99,11 +79,6 @@ if (readings.IsSuccessful)
 {
     ...
 }
-else
-{
-    var apiErrorCode = readings.Exception?.ApiErrorCode;
-    var apiErrorMessage = readings.Exception?.ApiErrorMessage;
-}
 ```
 
 or by city name and country code:
@@ -113,10 +88,5 @@ var readings = openWeatherMapCache.GetReadings(locationQuery);
 if (readings.IsSuccessful)
 {
     ...
-}
-else
-{
-    var apiErrorCode = readings.Exception?.ApiErrorCode;
-    var apiErrorMessage = readings.Exception?.ApiErrorMessage;
 }
 ```

@@ -3,7 +3,7 @@
 namespace OpenWeatherMap.Cache.Models;
 
 /// <summary>
-/// Class for the location with city name and country.
+/// Class for the location with city name and optional country.
 /// </summary>
 public sealed class City : ILocationQuery, IEquatable<City>
 {
@@ -26,7 +26,7 @@ public sealed class City : ILocationQuery, IEquatable<City>
     }
 
     /// <summary>
-    /// The 2 letter ISO 3166-1 alpha-2 country code of the <see cref="City"/>.
+    /// Optional 2 letter ISO 3166-1 alpha-2 country code of the <see cref="City"/>.
     /// </summary>
     public string CountryCode
     {
@@ -44,8 +44,8 @@ public sealed class City : ILocationQuery, IEquatable<City>
     /// Initializes a new instance of <see cref="City"/>.
     /// </summary>
     /// <param name="cityName">The city name of the location.</param>
-    /// <param name="countryCode">The 2 letter ISO 3166-1 alpha-2 country code of the location.</param>
-    public City(string cityName, string countryCode)
+    /// <param name="countryCode">Optional 2 letter ISO 3166-1 alpha-2 country code of the location.</param>
+    public City(string cityName, string countryCode = "")
     {
         CityName = cityName;
         CountryCode = countryCode;
