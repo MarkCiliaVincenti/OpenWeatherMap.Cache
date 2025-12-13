@@ -48,7 +48,7 @@ else
 
 or by zip code (post code) and country code:
 ```csharp
-var locationQuery = new OpenWeatherMap.Cache.Models.ZipCode("94040", "us");
+var locationQuery = new OpenWeatherMap.Cache.Models.ZipCode("94040", "US");
 var readings = await openWeatherMapCache.GetReadingsAsync(locationQuery);
 if (readings.IsSuccessful)
 {
@@ -63,7 +63,7 @@ else
 
 or by city name and country code:
 ```csharp
-var locationQuery = new OpenWeatherMap.Cache.Models.City("Beverly Hills", "us");
+var locationQuery = new OpenWeatherMap.Cache.Models.City("Beverly Hills", "US");
 var readings = await openWeatherMapCache.GetReadingsAsync(locationQuery);
 if (readings.IsSuccessful)
 {
@@ -93,7 +93,7 @@ else
 
 or by zip code (post code) and country code:
 ```csharp
-var locationQuery = new OpenWeatherMap.Cache.Models.ZipCode("94040", "us");
+var locationQuery = new OpenWeatherMap.Cache.Models.ZipCode("94040", "US");
 var readings = openWeatherMapCache.GetReadings(locationQuery);
 if (readings.IsSuccessful)
 {
@@ -108,7 +108,7 @@ else
 
 or by city name and country code:
 ```csharp
-var locationQuery = new OpenWeatherMap.Cache.Models.City("Beverly Hills", "us");
+var locationQuery = new OpenWeatherMap.Cache.Models.City("Beverly Hills", "US");
 var readings = openWeatherMapCache.GetReadings(locationQuery);
 if (readings.IsSuccessful)
 {
