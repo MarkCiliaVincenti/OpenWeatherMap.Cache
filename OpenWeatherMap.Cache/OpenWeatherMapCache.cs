@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using static OpenWeatherMap.Cache.Enums;
 
 namespace OpenWeatherMap.Cache;
@@ -148,11 +149,18 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
     private ValueTask<ApiWeatherResult> GetApiWeatherResultFromUriAsync(ZipCode zipCode, string uri, int timeout, CancellationToken cancellationToken) =>
         GetApiWeatherResultFromUriAsync($"{zipCode.Zip}-{zipCode.CountryCode}.json", uri, timeout, cancellationToken);
 
+    private ApiWeatherResult GetApiWeatherResultFromUri(City city, string uri, int timeout) =>
+        GetApiWeatherResultFromUri($"{city.CityName}-{city.CountryCode}.json", uri, timeout);
+
+    private ValueTask<ApiWeatherResult> GetApiWeatherResultFromUriAsync(City city, string uri, int timeout, CancellationToken cancellationToken) =>
+        GetApiWeatherResultFromUriAsync($"{city.CityName}-{city.CountryCode}.json", uri, timeout, cancellationToken);
+
     private ApiWeatherResult GetApiWeatherResultFromLocationQuery<T>(T locationQuery) where T : ILocationQuery =>
         locationQuery switch
         {
             Location location => GetApiWeatherResultFromUri(location, $"{BASE_WEATHER_URI}?lat={location.Latitude}&lon={location.Longitude}&appid={apiKey}&cache={Guid.NewGuid()}", timeout),
-            ZipCode zipCode => GetApiWeatherResultFromUri(zipCode, $"{BASE_WEATHER_URI}?zip={zipCode.Zip},{zipCode.CountryCode}&appid={apiKey}&cache={Guid.NewGuid()}", timeout),
+            ZipCode zipCode => GetApiWeatherResultFromUri(zipCode, $"{BASE_WEATHER_URI}?zip={HttpUtility.UrlEncode(zipCode.Zip)},{HttpUtility.UrlEncode(zipCode.CountryCode)}&appid={apiKey}&cache={Guid.NewGuid()}", timeout),
+            City city => GetApiWeatherResultFromUri(city, $"{BASE_WEATHER_URI}?q={HttpUtility.UrlEncode(city.CityName)}{(string.IsNullOrEmpty(city.CountryCode) ? "" : $",{HttpUtility.UrlEncode(city.CountryCode)}")}&appid={apiKey}&cache={Guid.NewGuid()}", timeout),
             _ => throw new ArgumentException("Unsupported type provided", nameof(locationQuery))
         };
 
@@ -160,14 +168,15 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
         locationQuery switch
         {
             Location location => GetApiWeatherResultFromUriAsync(location, $"{BASE_WEATHER_URI}?lat={location.Latitude}&lon={location.Longitude}&appid={apiKey}&cache={Guid.NewGuid()}", timeout, cancellationToken),
-            ZipCode zipCode => GetApiWeatherResultFromUriAsync(zipCode, $"{BASE_WEATHER_URI}?zip={zipCode.Zip},{zipCode.CountryCode}&appid={apiKey}&cache={Guid.NewGuid()}", timeout, cancellationToken),
+            ZipCode zipCode => GetApiWeatherResultFromUriAsync(zipCode, $"{BASE_WEATHER_URI}?zip={HttpUtility.UrlEncode(zipCode.Zip)},{HttpUtility.UrlEncode(zipCode.CountryCode)}&appid={apiKey}&cache={Guid.NewGuid()}", timeout, cancellationToken),
+            City city => GetApiWeatherResultFromUriAsync(city, $"{BASE_WEATHER_URI}?q={HttpUtility.UrlEncode(city.CityName)}{(string.IsNullOrEmpty(city.CountryCode) ? "" : $",{HttpUtility.UrlEncode(city.CountryCode)}")}&appid={apiKey}&cache={Guid.NewGuid()}", timeout, cancellationToken),
             _ => throw new ArgumentException("Unsupported type provided", nameof(locationQuery))
         };
 
     /// <summary>
-    /// Attempts to get the readings for the provided <see cref="Location"/> or <see cref="ZipCode"/>.
+    /// Attempts to get the readings for the provided <see cref="Location"/>, <see cref="ZipCode"/> or <see cref="City"/>.
     /// </summary>
-    /// <param name="locationQuery">The <see cref="Location"/> or <see cref="ZipCode"/> for which to get the readings.</param>
+    /// <param name="locationQuery">The <see cref="Location"/>, <see cref="ZipCode"/> or <see cref="City"/> for which to get the readings.</param>
     /// <param name="cancellationToken">Optional <see cref="CancellationToken"/>.</param>
     /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
     public async ValueTask<Readings> GetReadingsAsync<T>(T locationQuery, CancellationToken cancellationToken = default) where T : ILocationQuery
@@ -221,9 +230,9 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
     }
 
     /// <summary>
-    /// Attempts to get the readings for the provided <see cref="Location"/> or <see cref="ZipCode"/> by calling GetReadingsAsync synchronously (not ideal).
+    /// Attempts to get the readings for the provided <see cref="Location"/>, <see cref="ZipCode"/> or <see cref="City"/> by calling GetReadingsAsync synchronously (not ideal).
     /// </summary>
-    /// <param name="locationQuery">The <see cref="Location"/> or <see cref="ZipCode"/> for which to get the readings.</param>
+    /// <param name="locationQuery">The <see cref="Location"/>, <see cref="ZipCode"/> or <see cref="City"/> for which to get the readings.</param>
     /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
     public Readings GetReadings<T>(T locationQuery) where T : ILocationQuery
     {

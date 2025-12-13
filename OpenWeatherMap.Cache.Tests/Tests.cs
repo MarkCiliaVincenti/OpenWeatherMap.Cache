@@ -218,6 +218,18 @@ public class Tests
     }
 
     [Fact]
+    public async Task GetReadingsAsync_CityQuery_ReturnsValidReading()
+    {
+        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        var city = new City("Beverly Hills", "US");
+
+        var reading = await cache.GetReadingsAsync(city);
+
+        Assert.True(reading.IsSuccessful);
+        Assert.False(reading.IsFromCache);
+    }
+
+    [Fact]
     public void LocationMatches()
     {
         var location1 = new Location(48.6371, -122.1237);
@@ -246,6 +258,20 @@ public class Tests
     }
 
     [Fact]
+    public void CityMatches()
+    {
+        var location1 = new City("Beverly Hills", "US");
+        var location2 = new City("Beverly Hills", "US");
+        var location3 = new City("Houston", "US");
+        Assert.Equal(location1.GetHashCode(), location2.GetHashCode());
+        Assert.True(location1.Equals(location2));
+        Assert.True(location1.Equals((object)location2));
+        Assert.False(location1.Equals(location3));
+        Assert.False(location1.Equals(null));
+        Assert.False(location1.Equals(new object()));
+    }
+
+    [Fact]
     public async Task ReadingsMatch()
     {
         var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
@@ -253,6 +279,28 @@ public class Tests
 
         var reading = await cache.GetReadingsAsync(zipCode);
         var reading2 = cache.GetReadings(zipCode);
+
+        Assert.Equal(reading.Weather.First().GetHashCode(), reading2.Weather.First().GetHashCode());
+        Assert.True(reading.Weather.First().Equals(reading2.Weather.First()));
+        Assert.True(reading.Weather.First().Equals((object)reading2.Weather.First()));
+        Assert.False(reading.Weather.First().Equals(null));
+        Assert.False(reading.Weather.First().Equals(new object()));
+
+        Assert.Equal(reading.GetHashCode(), reading2.GetHashCode());
+        Assert.True(reading.Equals(reading2));
+        Assert.True(reading.Equals((object)reading2));
+        Assert.False(reading.Equals(null));
+        Assert.False(reading.Equals(new object()));
+    }
+
+    [Fact]
+    public async Task CityReadingsMatch()
+    {
+        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        var city = new City("Beverley Hills", "US");
+
+        var reading = await cache.GetReadingsAsync(city);
+        var reading2 = cache.GetReadings(city);
 
         Assert.Equal(reading.Weather.First().GetHashCode(), reading2.Weather.First().GetHashCode());
         Assert.True(reading.Weather.First().Equals(reading2.Weather.First()));
