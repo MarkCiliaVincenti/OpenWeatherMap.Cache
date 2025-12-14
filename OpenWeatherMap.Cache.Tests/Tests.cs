@@ -274,7 +274,7 @@ public class Tests
     [Fact]
     public async Task ReadingsMatch()
     {
-        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000, fetchMode: Enums.FetchMode.AlwaysUseLastFetchedValue);
         var zipCode = new ZipCode("90210", "US");
 
         var reading = await cache.GetReadingsAsync(zipCode);
