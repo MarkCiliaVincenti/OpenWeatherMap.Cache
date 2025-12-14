@@ -230,6 +230,30 @@ public class Tests
     }
 
     [Fact]
+    public void GetReadings_ZipCodeQuery_ReturnsValidReading()
+    {
+        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        var zipCode = new ZipCode("90210", "US");
+
+        var reading = cache.GetReadings(zipCode);
+
+        Assert.True(reading.IsSuccessful);
+        Assert.False(reading.IsFromCache);
+    }
+
+    [Fact]
+    public void GetReadings_CityQuery_ReturnsValidReading()
+    {
+        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        var city = new City("Beverly Hills", "US");
+
+        var reading = cache.GetReadings(city);
+
+        Assert.True(reading.IsSuccessful);
+        Assert.False(reading.IsFromCache);
+    }
+
+    [Fact]
     public void LocationMatches()
     {
         var location1 = new Location(48.6371, -122.1237);
