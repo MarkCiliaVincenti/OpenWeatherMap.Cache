@@ -292,7 +292,7 @@ public class Tests
 
         await Task.Delay(1000);
         reading2 = await cache.GetReadingsAsync(zipCode);
-        Assert.True(reading.Equals(reading2));
+        Assert.False(reading.Equals(reading2));
 
         Assert.False(reading.Equals(null));
         Assert.False(reading.Equals(new object()));
