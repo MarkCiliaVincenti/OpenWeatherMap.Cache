@@ -66,6 +66,11 @@ public class Tests
             Assert.Equal(concurrency * i, totalSuccessful);
             Assert.Equal((concurrency - 1) * i, totalFromCache);
             Assert.Equal(i, totalFromAPI);
+
+            if (i < tries)
+            {
+                await Task.Delay(apiCachePeriod + 1);
+            }
         }
     }
 
@@ -108,6 +113,11 @@ public class Tests
             Assert.Equal(concurrency * i, totalSuccessful);
             Assert.Equal((concurrency - 1) * i, totalFromCache);
             Assert.Equal(i, totalFromAPI);
+
+            if (i < tries)
+            {
+                await Task.Delay(apiCachePeriod + 1);
+            }
         }
     }
 
