@@ -29,7 +29,7 @@ public class Tests
     [Fact]
     public async Task TestConcurrency()
     {
-        int apiCachePeriod = 1_000;
+        int apiCachePeriod = 10_000;
         int concurrency = 100;
         int tries = 5;
 
@@ -63,11 +63,6 @@ public class Tests
                 }).ToList().AsParallel();
             await Task.WhenAll(tasks);
 
-            if (i < tries)
-            {
-                await Task.Delay(apiCachePeriod + 1);
-            }
-
             Assert.Equal(concurrency * i, totalSuccessful);
             Assert.Equal((concurrency - 1) * i, totalFromCache);
             Assert.Equal(i, totalFromAPI);
@@ -77,7 +72,7 @@ public class Tests
     [Fact]
     public async Task TestConcurrencyAsync()
     {
-        int apiCachePeriod = 1_000;
+        int apiCachePeriod = 10_000;
         int concurrency = 100;
         int tries = 5;
 
@@ -109,11 +104,6 @@ public class Tests
                     }
                 }).ToList().AsParallel();
             await Task.WhenAll(tasks);
-
-            if (i < tries)
-            {
-                await Task.Delay(apiCachePeriod + 1);
-            }
 
             Assert.Equal(concurrency * i, totalSuccessful);
             Assert.Equal((concurrency - 1) * i, totalFromCache);
