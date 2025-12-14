@@ -289,6 +289,11 @@ public class Tests
         Assert.Equal(reading.GetHashCode(), reading2.GetHashCode());
         Assert.True(reading.Equals(reading2));
         Assert.True(reading.Equals((object)reading2));
+
+        await Task.Delay(1000);
+        reading2 = await cache.GetReadingsAsync(zipCode);
+        Assert.True(reading.Equals(reading2));
+
         Assert.False(reading.Equals(null));
         Assert.False(reading.Equals(new object()));
     }
