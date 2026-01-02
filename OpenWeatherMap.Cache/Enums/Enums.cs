@@ -1,4 +1,7 @@
-﻿#pragma warning disable IDE0130 // Namespace does not match folder structure
+﻿// Copyright (c) All contributors.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace OpenWeatherMap.Cache;
 #pragma warning restore IDE0130 // Namespace does not match folder structure
 

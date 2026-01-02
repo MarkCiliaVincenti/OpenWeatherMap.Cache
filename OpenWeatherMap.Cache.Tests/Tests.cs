@@ -1,8 +1,13 @@
+// Copyright (c) All contributors.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OpenWeatherMap.Cache.Extensions;
 using OpenWeatherMap.Cache.Models;
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -22,7 +27,7 @@ public class Tests
 
         if (string.IsNullOrWhiteSpace(_apiKey) || _apiKey == "[API Key]")
         {
-            throw new Exception("OpenWeather API key not successfully set.");
+            throw new ArgumentNullException("apiKey", "OpenWeather API key not successfully set.");
         }
     }
 
@@ -33,7 +38,7 @@ public class Tests
         int concurrency = 100;
         int tries = 5;
 
-        var openWeatherMapCache = new OpenWeatherMapCache(_apiKey, apiCachePeriod);
+        using var openWeatherMapCache = new OpenWeatherMapCache(_apiKey, apiCachePeriod);
         int totalFromCache = 0;
         int totalFromAPI = 0;
         int totalSuccessful = 0;
@@ -81,7 +86,7 @@ public class Tests
         int concurrency = 100;
         int tries = 5;
 
-        var openWeatherMapCache = new OpenWeatherMapCache(_apiKey, apiCachePeriod);
+        using var openWeatherMapCache = new OpenWeatherMapCache(_apiKey, apiCachePeriod);
         int totalFromCache = 0;
         int totalFromAPI = 0;
         int totalSuccessful = 0;
@@ -124,8 +129,8 @@ public class Tests
     [Fact]
     public async Task GetReadingsAsync_ShouldReturnSuccessfulReading_WhenNotCached()
     {
-        var location = new Models.Location(37.7749, -122.4194);
-        var cache = new OpenWeatherMapCache(_apiKey, 1_000);
+        var location = new Location(37.7749, -122.4194);
+        using var cache = new OpenWeatherMapCache(_apiKey, 1_000);
 
         var result = await cache.GetReadingsAsync(location);
 
@@ -137,8 +142,8 @@ public class Tests
     [Fact]
     public void GetReadings_ShouldReturnFromCache_WhenWithinCachePeriod()
     {
-        var location = new Models.Location(40.7128, -74.0060);
-        var cache = new OpenWeatherMapCache(_apiKey, 10_000);
+        var location = new Location(40.7128, -74.0060);
+        using var cache = new OpenWeatherMapCache(_apiKey, 10_000);
 
         var first = cache.GetReadings(location);
         var second = cache.GetReadings(location);
@@ -148,12 +153,12 @@ public class Tests
         Assert.False(second.ApiRequestMade);
     }
 
-    public class InvalidQuery : ILocationQuery { }
+    internal class InvalidQuery : ILocationQuery { }
 
     [Fact]
     public async Task GetReadingsAsync_ShouldThrowArgumentException_WhenInvalidLocationQuery()
     {
-        var cache = new OpenWeatherMapCache(_apiKey, 1000);
+        using var cache = new OpenWeatherMapCache(_apiKey, 1000);
         await Assert.ThrowsAsync<ArgumentException>(async () => await cache.GetReadingsAsync(new InvalidQuery()));
     }
 
@@ -163,12 +168,12 @@ public class Tests
         string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(tempDir);
 
-        var cache = new OpenWeatherMapCache(_apiKey, 1000, logPath: tempDir);
-        var location = new Models.Location(48.8566, 2.3522);
+        using var cache = new OpenWeatherMapCache(_apiKey, 1000, logPath: tempDir);
+        var location = new Location(48.8566, 2.3522);
 
         var _ = await cache.GetReadingsAsync(location);
 
-        var expectedFile = Path.Combine(tempDir, $"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json");
+        var expectedFile = Path.Combine(tempDir, $"{location.Latitude.ToString(CultureInfo.InvariantCulture).Replace('.', '_')}-{location.Longitude.ToString(CultureInfo.InvariantCulture).Replace('.', '_')}.json");
         Assert.True(File.Exists(expectedFile));
 
         // Cleanup
@@ -181,12 +186,12 @@ public class Tests
         string tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(tempDir);
 
-        var cache = new OpenWeatherMapCache(_apiKey, 1000, logPath: tempDir);
+        using var cache = new OpenWeatherMapCache(_apiKey, 1000, logPath: tempDir);
         var location = new Location(48.8566, 2.3522);
 
         var _ = cache.GetReadings(location);
 
-        var expectedFile = Path.Combine(tempDir, $"{location.Latitude.ToString().Replace('.', '_')}-{location.Longitude.ToString().Replace('.', '_')}.json");
+        var expectedFile = Path.Combine(tempDir, $"{location.Latitude.ToString(CultureInfo.InvariantCulture).Replace('.', '_')}-{location.Longitude.ToString(CultureInfo.InvariantCulture).Replace('.', '_')}.json");
         Assert.True(File.Exists(expectedFile));
 
         // Cleanup
@@ -196,7 +201,7 @@ public class Tests
     [Fact]
     public void GetReadings_SynchronousMethod_ReturnsValidReading()
     {
-        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
         var location = new Location(48.6371, -122.1237);
 
         var reading = cache.GetReadings(location);
@@ -208,7 +213,7 @@ public class Tests
     [Fact]
     public async Task GetReadingsAsync_ZipCodeQuery_ReturnsValidReading()
     {
-        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
         var zipCode = new ZipCode("90210", "US");
 
         var reading = await cache.GetReadingsAsync(zipCode);
@@ -220,7 +225,7 @@ public class Tests
     [Fact]
     public async Task GetReadingsAsync_CityQuery_ReturnsValidReading()
     {
-        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
         var city = new City("Beverly Hills", "US");
 
         var reading = await cache.GetReadingsAsync(city);
@@ -232,7 +237,7 @@ public class Tests
     [Fact]
     public void GetReadings_ZipCodeQuery_ReturnsValidReading()
     {
-        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
         var zipCode = new ZipCode("90210", "US");
 
         var reading = cache.GetReadings(zipCode);
@@ -244,7 +249,7 @@ public class Tests
     [Fact]
     public void GetReadings_CityQuery_ReturnsValidReading()
     {
-        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
         var city = new City("Beverly Hills", "US");
 
         var reading = cache.GetReadings(city);
@@ -254,6 +259,8 @@ public class Tests
     }
 
     [Fact]
+    [SuppressMessage("CodeQuality", "CA1508:Avoid dead conditional code", Justification = "<Pending>")]
+    [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     public void LocationMatches()
     {
         var location1 = new Location(48.6371, -122.1237);
@@ -268,6 +275,8 @@ public class Tests
     }
 
     [Fact]
+    [SuppressMessage("CodeQuality", "CA1508:Avoid dead conditional code", Justification = "<Pending>")]
+    [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     public void ZipCodeMatches()
     {
         var location1 = new ZipCode("90210", "US");
@@ -282,6 +291,8 @@ public class Tests
     }
 
     [Fact]
+    [SuppressMessage("CodeQuality", "CA1508:Avoid dead conditional code", Justification = "<Pending>")]
+    [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "<Pending>")]
     public void CityMatches()
     {
         var location1 = new City("Beverly Hills", "US");
@@ -298,7 +309,7 @@ public class Tests
     [Fact]
     public async Task ReadingsMatch()
     {
-        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000, fetchMode: Enums.FetchMode.AlwaysUseLastFetchedValue);
+        using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000, fetchMode: Enums.FetchMode.AlwaysUseLastFetchedValue);
         var zipCode = new ZipCode("90210", "US");
 
         var reading = await cache.GetReadingsAsync(zipCode);
@@ -325,7 +336,7 @@ public class Tests
     [Fact]
     public async Task CityReadingsMatch()
     {
-        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
         var city = new City("Beverley Hills", "US");
 
         var reading = await cache.GetReadingsAsync(city);
@@ -365,7 +376,7 @@ public class Tests
     public void InvalidLocation()
     {
         var location = new Location(10_000_000, 10_000_000);
-        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
 
         var reading = cache.GetReadings(location);
         Assert.False(reading.IsSuccessful);
@@ -387,7 +398,7 @@ public class Tests
     [Fact]
     public void Unsupported_Inherited_ILocationQuery_ShouldThrowException()
     {
-        var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
+        using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
         var invalidQuery = new InheritedInvalidQuery();
         Assert.Throws<ArgumentException>(() => cache.GetReadings(invalidQuery));
     }

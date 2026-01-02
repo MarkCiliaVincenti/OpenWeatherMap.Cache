@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) All contributors.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
 
 namespace OpenWeatherMap.Cache.Models;
 
@@ -21,7 +24,8 @@ public sealed class City : ILocationQuery, IEquatable<City>
         }
         set
         {
-            _cityName = value.Trim().ToLowerInvariant();
+            _cityName = value?.Trim().ToLowerInvariant()
+                ?? throw new ArgumentNullException(nameof(value));
         }
     }
 
@@ -36,7 +40,7 @@ public sealed class City : ILocationQuery, IEquatable<City>
         }
         set
         {
-            _countryCode = value.Trim().ToLowerInvariant();
+            _countryCode = value?.Trim().ToLowerInvariant();
         }
     }
 
@@ -58,7 +62,7 @@ public sealed class City : ILocationQuery, IEquatable<City>
         {
             return false;
         }
-        return CityName.Equals(other.CityName) && CountryCode.Equals(other.CountryCode);
+        return CityName.Equals(other.CityName, StringComparison.Ordinal) && CountryCode.Equals(other.CountryCode, StringComparison.Ordinal);
     }
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>

@@ -10,5 +10,8 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">
 		<DefineConstants>AOT_COMPATIBLE</DefineConstants>
-	</PropertyGroup>	
+	</PropertyGroup>
+	<ItemGroup>
+		<AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
+	</ItemGroup>
 </Project>

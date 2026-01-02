@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) All contributors.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
 
 namespace OpenWeatherMap.Cache.Models;
 
@@ -21,7 +24,8 @@ public sealed class ZipCode : ILocationQuery, IEquatable<ZipCode>
         }
         set
         {
-            _zip = value.Trim().ToLowerInvariant();
+            _zip = value?.Trim().ToLowerInvariant()
+                ?? throw new ArgumentNullException(nameof(value));
         }
     }
 
@@ -36,7 +40,8 @@ public sealed class ZipCode : ILocationQuery, IEquatable<ZipCode>
         }
         set
         {
-            _countryCode = value.Trim().ToLowerInvariant();
+            _countryCode = value?.Trim().ToLowerInvariant()
+                ?? throw new ArgumentNullException(nameof(value));
         }
     }
 
@@ -58,7 +63,7 @@ public sealed class ZipCode : ILocationQuery, IEquatable<ZipCode>
         {
             return false;
         }
-        return Zip.Equals(other.Zip) && CountryCode.Equals(other.CountryCode);
+        return Zip.Equals(other.Zip, StringComparison.Ordinal) && CountryCode.Equals(other.CountryCode, StringComparison.Ordinal);
     }
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>

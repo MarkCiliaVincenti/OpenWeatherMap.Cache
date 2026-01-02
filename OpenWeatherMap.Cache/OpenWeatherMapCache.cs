@@ -1,4 +1,7 @@
-﻿using AsyncKeyedLock;
+// Copyright (c) All contributors.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using AsyncKeyedLock;
 using Microsoft.Extensions.Caching.Memory;
 using OpenWeatherMap.Cache.Constants;
 using OpenWeatherMap.Cache.Models;
@@ -19,7 +22,7 @@ namespace OpenWeatherMap.Cache;
 /// <summary>
 /// Interface for <see cref="OpenWeatherMapCache"/>
 /// </summary>
-public interface IOpenWeatherMapCache
+public interface IOpenWeatherMapCache : IDisposable
 {
     /// <inheritdoc cref="OpenWeatherMapCache.GetReadingsAsync"/>
     ValueTask<Readings> GetReadingsAsync<T>(T locationQuery, CancellationToken cancellationToken = default) where T : ILocationQuery;
@@ -40,13 +43,14 @@ public interface IOpenWeatherMapCache
 /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod"/>.</param>
 /// <param name="timeout">The number of milliseconds for the <see cref="WebRequest"/> timeout. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultTimeout"/>.</param>
 /// <param name="logPath">Logs the latest result for a given location to file. Defaults to null (disabled).</param>
-public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, FetchMode fetchMode = FetchMode.AlwaysUseLastMeasuredButExtendCache, int resiliencyPeriod = OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod, int timeout = OpenWeatherMapCacheDefaults.DefaultTimeout, string logPath = null) : IOpenWeatherMapCache
+public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, FetchMode fetchMode = FetchMode.AlwaysUseLastMeasuredButExtendCache, int resiliencyPeriod = OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod, int timeout = OpenWeatherMapCacheDefaults.DefaultTimeout, string logPath = null) : IOpenWeatherMapCache, IDisposable
 {
     private readonly MemoryCache _memoryCache = new(new MemoryCacheOptions());
     private readonly AsyncKeyedLocker<ILocationQuery> _asyncKeyedLocker = new();
     private const string BASE_WEATHER_URI = "https://api.openweathermap.org/data/2.5/weather";
     private readonly NumberFormatInfo _numberFormatInfo = new() { NumberDecimalSeparator = "_" };
     private readonly HttpClientService _httpClientService = new(new DefaultHttpClientFactory(timeout));
+    private bool _disposedValue;
 
     private ApiWeatherResult GetApiWeatherResultFromUri(string logFileName, string uri, int timeout)
     {
@@ -282,5 +286,26 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
                 return new Readings(exception);
             }
         }
+    }
+
+    private void Dispose(bool disposing)
+    {
+        if (!_disposedValue)
+        {
+            if (disposing)
+            {
+                _memoryCache?.Dispose();
+                _asyncKeyedLocker?.Dispose();
+                _httpClientService?.Dispose();
+            }
+
+            _disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

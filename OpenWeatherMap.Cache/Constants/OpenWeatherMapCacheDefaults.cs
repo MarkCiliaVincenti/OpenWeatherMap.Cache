@@ -1,4 +1,7 @@
-﻿namespace OpenWeatherMap.Cache.Constants;
+﻿// Copyright (c) All contributors.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+namespace OpenWeatherMap.Cache.Constants;
 
 /// <summary>
 /// Class for OpenWeatherMap.Cache defaults

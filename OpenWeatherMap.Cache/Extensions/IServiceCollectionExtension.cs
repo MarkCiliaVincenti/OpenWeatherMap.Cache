@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+// Copyright (c) All contributors.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using Microsoft.Extensions.DependencyInjection;
 using OpenWeatherMap.Cache.Constants;
 using static OpenWeatherMap.Cache.Enums;
 
@@ -22,7 +25,8 @@ public static class IServiceCollectionExtension
     /// <returns>The service collection</returns>
     public static IServiceCollection AddOpenWeatherMapCache(this IServiceCollection services, string apiKey, int apiCachePeriod, FetchMode fetchMode = FetchMode.AlwaysUseLastMeasuredButExtendCache, int resiliencyPeriod = OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod, int timeout = OpenWeatherMapCacheDefaults.DefaultTimeout, string logPath = null)
     {
-        services.AddSingleton<IOpenWeatherMapCache>(new OpenWeatherMapCache(apiKey, apiCachePeriod, fetchMode, resiliencyPeriod, timeout, logPath));
+        services.AddSingleton<IOpenWeatherMapCache>(provider =>
+            new OpenWeatherMapCache(apiKey, apiCachePeriod, fetchMode, resiliencyPeriod, timeout, logPath));
         return services;
     }
 }
