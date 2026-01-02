@@ -10,7 +10,7 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<Version>2.3.0</Version>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>Code quality, fixes issue with optional country code when city name is specified, dependency update.</PackageReleaseNotes>
+		<PackageReleaseNotes>Code quality, disposing, fixes issue with optional country code when city name is specified, dependency update.</PackageReleaseNotes>
 		<Description>An asynchronous .NET library that allows you to fetch &amp; cache current weather readings from the OpenWeather API, with built-in resiliency that can extend the cache lifetime in case the API is unreachable.</Description>
 		<Copyright>© 2026 Mark Cilia Vincenti</Copyright>
 		<PackageTags>OpenWeather,OpenWeatherMap,cache,weather,API,.NET Standard,netstandard</PackageTags>
