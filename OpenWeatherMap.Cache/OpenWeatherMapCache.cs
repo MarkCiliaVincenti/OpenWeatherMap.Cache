@@ -303,6 +303,9 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
         }
     }
 
+    /// <summary>
+    /// Disposes the <see cref="OpenWeatherMapCache"/> instance.
+    /// </summary>
     public void Dispose()
     {
         Dispose(disposing: true);

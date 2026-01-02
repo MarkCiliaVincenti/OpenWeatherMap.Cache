@@ -11,11 +11,11 @@ namespace OpenWeatherMap.Cache.Models;
 [Serializable]
 public sealed class OpenWeatherMapCacheException : Exception
 {
-    public OpenWeatherMapCacheException()
+    internal OpenWeatherMapCacheException()
         : base("Exception during API call.")
     { }
 
-    public OpenWeatherMapCacheException(string message)
+    internal OpenWeatherMapCacheException(string message)
         : base($"Exception during API call: {message}")
     { }
 
