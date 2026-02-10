@@ -27,8 +27,8 @@
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="[6.0.3, 7.0.0)" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="[6.0.2, 7.0.0)" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="[6.0.1, 7.0.0)" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="[6.0.0, 7.0.0)" />
-    <PackageVersion Include="Microsoft.Extensions.Http" Version="[6.0.1, 7.0.0)" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.2" />
     <PackageVersion Include="System.Text.Json" Version="[6.0.11, 7.0.0)" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0')) and !$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
