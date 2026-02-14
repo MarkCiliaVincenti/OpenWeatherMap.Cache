@@ -12,21 +12,23 @@ namespace OpenWeatherMap.Cache.Extensions;
 /// </summary>
 public static class IServiceCollectionExtension
 {
-    /// <summary>
-    /// Adds a singleton service for OpenWeatherMap.Cache for Dependency Injection.
-    /// </summary>
-    /// <param name="services">The interface being extended</param>
-    /// <param name="apiKey">The unique API key obtained from OpenWeatherMap.</param>
-    /// <param name="apiCachePeriod">The number of milliseconds to cache for.</param>
-    /// <param name="fetchMode">The mode of operation. Defaults to <see cref="FetchMode.AlwaysUseLastMeasuredButExtendCache"/>.</param>
-    /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod"/></param>
-    /// <param name="timeout">The number of milliseconds for the <see cref="System.Net.WebRequest"/> timeout. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultTimeout"/></param>
-    /// <param name="logPath">Logs the latest result for a given location to file. Defaults to null (disabled).</param>
-    /// <returns>The service collection</returns>
-    public static IServiceCollection AddOpenWeatherMapCache(this IServiceCollection services, string apiKey, int apiCachePeriod, FetchMode fetchMode = FetchMode.AlwaysUseLastMeasuredButExtendCache, int resiliencyPeriod = OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod, int timeout = OpenWeatherMapCacheDefaults.DefaultTimeout, string logPath = null)
+    extension(IServiceCollection services)
     {
-        services.AddSingleton<IOpenWeatherMapCache>(provider =>
-            new OpenWeatherMapCache(apiKey, apiCachePeriod, fetchMode, resiliencyPeriod, timeout, logPath));
-        return services;
+        /// <summary>
+        /// Adds a singleton service for OpenWeatherMap.Cache for Dependency Injection.
+        /// </summary>
+        /// <param name="apiKey">The unique API key obtained from OpenWeatherMap.</param>
+        /// <param name="apiCachePeriod">The number of milliseconds to cache for.</param>
+        /// <param name="fetchMode">The mode of operation. Defaults to <see cref="FetchMode.AlwaysUseLastMeasuredButExtendCache"/>.</param>
+        /// <param name="resiliencyPeriod">The number of milliseconds to keep on using cache values if API is unavailable. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod"/></param>
+        /// <param name="timeout">The number of milliseconds for the <see cref="System.Net.WebRequest"/> timeout. Defaults to <see cref="OpenWeatherMapCacheDefaults.DefaultTimeout"/></param>
+        /// <param name="logPath">Logs the latest result for a given location to file. Defaults to null (disabled).</param>
+        /// <returns>The service collection</returns>
+        public IServiceCollection AddOpenWeatherMapCache(string apiKey, int apiCachePeriod, FetchMode fetchMode = FetchMode.AlwaysUseLastMeasuredButExtendCache, int resiliencyPeriod = OpenWeatherMapCacheDefaults.DefaultResiliencyPeriod, int timeout = OpenWeatherMapCacheDefaults.DefaultTimeout, string logPath = null)
+        {
+            services.AddSingleton<IOpenWeatherMapCache>(provider =>
+                new OpenWeatherMapCache(apiKey, apiCachePeriod, fetchMode, resiliencyPeriod, timeout, logPath));
+            return services;
+        }
     }
 }
