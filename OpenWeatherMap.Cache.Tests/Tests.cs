@@ -364,8 +364,8 @@ public class Tests
         var location = new Location(latitude, longitude);
         Assert.Equal(latitude, location.Latitude);
         Assert.Equal(longitude, location.Longitude);
-        location.Latitude = 0;
-        location.Longitude = 0;
+
+        location = new Location(0, 0);
         Assert.Equal(0, location.Latitude);
         Assert.Equal(0, location.Longitude);
         Assert.True(location.Equals(new Location(0, 0)));

@@ -6,9 +6,9 @@ using System;
 namespace OpenWeatherMap.Cache.Models;
 
 /// <summary>
-/// Class for the location with zip code (postal code) and country.
+/// Struct for the location with zip code (postal code) and country.
 /// </summary>
-public sealed class ZipCode : ILocationQuery, IEquatable<ZipCode>
+public struct ZipCode : ILocationQuery, IEquatable<ZipCode>
 {
     private string _zip;
     private string _countryCode;
@@ -18,10 +18,7 @@ public sealed class ZipCode : ILocationQuery, IEquatable<ZipCode>
     /// </summary>
     public string Zip
     {
-        get
-        {
-            return _zip;
-        }
+        readonly get => _zip;
         set
         {
             _zip = value?.Trim().ToLowerInvariant()
@@ -34,10 +31,7 @@ public sealed class ZipCode : ILocationQuery, IEquatable<ZipCode>
     /// </summary>
     public string CountryCode
     {
-        get
-        {
-            return _countryCode;
-        }
+        readonly get => _countryCode;
         set
         {
             _countryCode = value?.Trim().ToLowerInvariant()
@@ -57,24 +51,22 @@ public sealed class ZipCode : ILocationQuery, IEquatable<ZipCode>
     }
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
-    public bool Equals(ZipCode other)
-    {
-        if (other == null)
-        {
-            return false;
-        }
-        return Zip.Equals(other.Zip, StringComparison.Ordinal) && CountryCode.Equals(other.CountryCode, StringComparison.Ordinal);
-    }
+    public readonly bool Equals(ZipCode other)
+        => Zip.Equals(other.Zip, StringComparison.Ordinal) && CountryCode.Equals(other.CountryCode, StringComparison.Ordinal);
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
-    public override bool Equals(object obj)
-    {
-        return obj is ZipCode other && Equals(other);
-    }
+    public override readonly bool Equals(object obj)
+        => obj is ZipCode other && Equals(other);
 
     /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(Zip, CountryCode);
-    }
+    public override readonly int GetHashCode()
+        => HashCode.Combine(Zip, CountryCode);
+
+    /// <inheritdoc />
+    public static bool operator ==(ZipCode left, ZipCode right)
+        => left.Equals(right);
+
+    /// <inheritdoc />
+    public static bool operator !=(ZipCode left, ZipCode right)
+        => !(left == right);
 }

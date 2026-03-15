@@ -1,4 +1,4 @@
-﻿// Copyright (c) All contributors.
+// Copyright (c) All contributors.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -8,7 +8,7 @@ namespace OpenWeatherMap.Cache;
 /// <summary>
 /// Enumeration class for OpenWeatherMap.Cache
 /// </summary>
-public sealed class Enums
+public static class Enums
 {
     /// <summary>
     /// If the time elapsed since the last fetch for the given location exceeds the cache period (i.e. a new API call is required)

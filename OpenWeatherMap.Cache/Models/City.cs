@@ -6,9 +6,9 @@ using System;
 namespace OpenWeatherMap.Cache.Models;
 
 /// <summary>
-/// Class for the location with city name and optional country.
+/// Struct for the location with city name and optional country.
 /// </summary>
-public sealed class City : ILocationQuery, IEquatable<City>
+public struct City : ILocationQuery, IEquatable<City>
 {
     private string _cityName;
     private string _countryCode;
@@ -18,10 +18,7 @@ public sealed class City : ILocationQuery, IEquatable<City>
     /// </summary>
     public string CityName
     {
-        get
-        {
-            return _cityName;
-        }
+        readonly get => _cityName;
         set
         {
             _cityName = value?.Trim().ToLowerInvariant()
@@ -34,10 +31,7 @@ public sealed class City : ILocationQuery, IEquatable<City>
     /// </summary>
     public string CountryCode
     {
-        get
-        {
-            return _countryCode;
-        }
+        readonly get => _countryCode;
         set
         {
             _countryCode = value?.Trim().ToLowerInvariant();
@@ -56,24 +50,22 @@ public sealed class City : ILocationQuery, IEquatable<City>
     }
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
-    public bool Equals(City other)
-    {
-        if (other == null)
-        {
-            return false;
-        }
-        return CityName.Equals(other.CityName, StringComparison.Ordinal) && CountryCode.Equals(other.CountryCode, StringComparison.Ordinal);
-    }
+    public readonly bool Equals(City other)
+        => CityName.Equals(other.CityName, StringComparison.Ordinal) && CountryCode.Equals(other.CountryCode, StringComparison.Ordinal);
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
-    public override bool Equals(object obj)
-    {
-        return obj is City other && Equals(other);
-    }
+    public override readonly bool Equals(object obj)
+        => obj is City other && Equals(other);
 
     /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(CityName, CountryCode);
-    }
+    public override readonly int GetHashCode()
+        => HashCode.Combine(CityName, CountryCode);
+
+    /// <inheritdoc />
+    public static bool operator ==(City left, City right)
+        => left.Equals(right);
+
+    /// <inheritdoc />
+    public static bool operator !=(City left, City right)
+        => !(left == right);
 }

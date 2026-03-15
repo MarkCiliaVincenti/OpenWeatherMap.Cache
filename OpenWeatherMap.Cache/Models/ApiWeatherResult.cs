@@ -1,4 +1,4 @@
-﻿// Copyright (c) All contributors.
+// Copyright (c) All contributors.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ internal partial class ApiWeatherResultJsonContext : JsonSerializerContext
 {
 }
 
-internal sealed class ApiCoord
+internal struct ApiCoord
 {
     [JsonPropertyName("lon")]
     public float Lon { get; set; }
@@ -27,7 +27,7 @@ internal sealed class ApiCoord
     public float Lat { get; set; }
 }
 
-internal sealed class ApiWeather
+internal struct ApiWeather
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }
@@ -42,7 +42,7 @@ internal sealed class ApiWeather
     public string Icon { get; set; }
 }
 
-internal sealed class ApiMain
+internal struct ApiMain
 {
     [JsonPropertyName("temp")]
     public float Temp { get; set; }
@@ -69,7 +69,7 @@ internal sealed class ApiMain
     public int? GrndLevel { get; set; }
 }
 
-internal sealed class ApiWind
+internal struct ApiWind
 {
     [JsonPropertyName("speed")]
     public float Speed { get; set; }
@@ -81,13 +81,13 @@ internal sealed class ApiWind
     public float? Gust { get; set; }
 }
 
-internal sealed class ApiClouds
+internal struct ApiClouds
 {
     [JsonPropertyName("all")]
     public int All { get; set; }
 }
 
-internal sealed class ApiVolume
+internal struct ApiVolume
 {
     [JsonPropertyName("1h")]
     public float OneHour { get; set; }
@@ -96,7 +96,7 @@ internal sealed class ApiVolume
     public float ThreeHours { get; set; }
 }
 
-internal sealed class ApiSys
+internal struct ApiSys
 {
     [JsonPropertyName("type")]
     public int? Type { get; set; }
@@ -117,10 +117,10 @@ internal sealed class ApiSys
     public long Sunset { get; set; }
 }
 
-internal sealed class ApiWeatherResult
+internal struct ApiWeatherResult
 {
     [JsonPropertyName("coord")]
-    public ApiCoord Coord { get; set; }
+    public ApiCoord? Coord { get; set; }
 
     [JsonPropertyName("weather")]
     public IEnumerable<ApiWeather> Weather { get; set; }
@@ -141,10 +141,10 @@ internal sealed class ApiWeatherResult
     public ApiClouds Clouds { get; set; }
 
     [JsonPropertyName("rain")]
-    public ApiVolume Rain { get; set; }
+    public ApiVolume? Rain { get; set; }
 
     [JsonPropertyName("snow")]
-    public ApiVolume Snow { get; set; }
+    public ApiVolume? Snow { get; set; }
 
     [JsonPropertyName("dt")]
     public long Dt { get; set; }

@@ -1,17 +1,17 @@
-﻿// Copyright (c) All contributors.
+// Copyright (c) All contributors.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using UnitsNet;
 
 namespace OpenWeatherMap.Cache.Models;
 
 /// <summary>
-/// Class for weather conditions
+/// Struct for weather conditions
 /// </summary>
 [Serializable]
-public sealed class WeatherCondition : IEquatable<WeatherCondition>
+public struct WeatherCondition : IEquatable<WeatherCondition>
 {
     /// <summary>
     /// Weather condition id
@@ -31,38 +31,36 @@ public sealed class WeatherCondition : IEquatable<WeatherCondition>
     public string IconId { get; internal set; }
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
-    public bool Equals(WeatherCondition other)
-    {
-        if (other == null)
-        {
-            return false;
-        }
-        return ConditionId.Equals(other.ConditionId);
-    }
+    public readonly bool Equals(WeatherCondition other)
+        => ConditionId.Equals(other.ConditionId);
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
-    public override bool Equals(object obj)
-    {
-        return obj is WeatherCondition other && Equals(other);
-    }
+    public override readonly bool Equals(object obj)
+        => obj is WeatherCondition other && Equals(other);
 
     /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(ConditionId);
-    }
+    public override readonly int GetHashCode()
+        => HashCode.Combine(ConditionId);
+
+    /// <inheritdoc />
+    public static bool operator ==(WeatherCondition left, WeatherCondition right)
+        => left.Equals(right);
+
+    /// <inheritdoc />
+    public static bool operator !=(WeatherCondition left, WeatherCondition right)
+        => !(left == right);
 }
 
 /// <summary>
-/// Class for readings
+/// Struct for readings
 /// </summary>
 [Serializable]
-public sealed class Readings : IEquatable<Readings>
+public struct Readings : IEquatable<Readings>
 {
     /// <summary>
     /// Weather conditions
     /// </summary>
-    public List<WeatherCondition> Weather { get; internal set; }
+    public WeatherCondition[] Weather { get; internal set; }
     /// <summary>
     /// The temperature of the <see cref="Readings"/>.
     /// </summary>
@@ -166,7 +164,7 @@ public sealed class Readings : IEquatable<Readings>
     /// <summary>
     /// Indicates whether the <see cref="Readings"/> were successful or not.
     /// </summary>
-    public bool IsSuccessful => (Exception == null);
+    public readonly bool IsSuccessful => (Exception == null);
     /// <summary>
     /// Indicates whether the <see cref="Readings"/> were retrieved from cache or directly from the API.
     /// </summary>
@@ -178,17 +176,14 @@ public sealed class Readings : IEquatable<Readings>
 
     internal Readings(ApiWeatherResult apiWeatherResult)
     {
-        Weather = [];
-        foreach (var weather in apiWeatherResult.Weather)
-        {
-            Weather.Add(new WeatherCondition
+        Weather = [.. apiWeatherResult.Weather.Select(
+            weather => new WeatherCondition
             {
                 ConditionId = weather.Id,
                 Main = weather.Main,
                 Description = weather.Description,
                 IconId = weather.Icon
-            });
-        }
+            })];
         Temperature = Temperature.FromKelvins(apiWeatherResult.Main.Temp);
         FeelsLike = Temperature.FromKelvins(apiWeatherResult.Main.FeelsLike);
         Pressure = Pressure.FromHectopascals(apiWeatherResult.Main.Pressure);
@@ -212,13 +207,13 @@ public sealed class Readings : IEquatable<Readings>
         Cloudiness = Ratio.FromPercent(apiWeatherResult.Clouds.All);
         if (apiWeatherResult.Rain != null)
         {
-            RainfallLastHour = Length.FromMillimeters(apiWeatherResult.Rain.OneHour);
-            RainfallLastThreeHours = Length.FromMillimeters(apiWeatherResult.Rain.ThreeHours);
+            RainfallLastHour = Length.FromMillimeters(apiWeatherResult.Rain.Value.OneHour);
+            RainfallLastThreeHours = Length.FromMillimeters(apiWeatherResult.Rain.Value.ThreeHours);
         }
         if (apiWeatherResult.Snow != null)
         {
-            SnowfallLastHour = Length.FromMillimeters(apiWeatherResult.Snow.OneHour);
-            SnowfallLastThreeHours = Length.FromMillimeters(apiWeatherResult.Snow.ThreeHours);
+            SnowfallLastHour = Length.FromMillimeters(apiWeatherResult.Snow.Value.OneHour);
+            SnowfallLastThreeHours = Length.FromMillimeters(apiWeatherResult.Snow.Value.ThreeHours);
         }
         MeasuredTime = DateTimeOffset.FromUnixTimeSeconds(apiWeatherResult.Dt).UtcDateTime;
         CountryCode = apiWeatherResult.Sys.Country;
@@ -237,24 +232,22 @@ public sealed class Readings : IEquatable<Readings>
     }
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
-    public bool Equals(Readings other)
-    {
-        if (other == null)
-        {
-            return false;
-        }
-        return FetchedTime.Equals(other.FetchedTime) && MeasuredTime.Equals(other.MeasuredTime);
-    }
+    public readonly bool Equals(Readings other)
+        => FetchedTime.Equals(other.FetchedTime) && MeasuredTime.Equals(other.MeasuredTime);
 
     /// <inheritdoc cref="IEquatable{T}.Equals(T)"/>
-    public override bool Equals(object obj)
-    {
-        return obj is Readings other && Equals(other);
-    }
+    public override readonly bool Equals(object obj)
+        => obj is Readings other && Equals(other);
 
     /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(FetchedTime, MeasuredTime);
-    }
+    public override readonly int GetHashCode()
+        => HashCode.Combine(FetchedTime, MeasuredTime);
+
+    /// <inheritdoc />
+    public static bool operator ==(Readings left, Readings right)
+        => left.Equals(right);
+
+    /// <inheritdoc />
+    public static bool operator !=(Readings left, Readings right)
+        => !(left == right);
 }
