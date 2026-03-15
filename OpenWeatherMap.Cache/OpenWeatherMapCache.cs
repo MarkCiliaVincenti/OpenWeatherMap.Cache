@@ -105,23 +105,24 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
 #else
             using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 #endif
-            using var streamReader = new StreamReader(stream);
-#if NET7_0_OR_GREATER
-            var content = await streamReader.ReadToEndAsync(cts.Token).ConfigureAwait(false);
-#else
-            var content = await streamReader.ReadToEndAsync().ConfigureAwait(false);
-#endif
 
             if (logPath != null)
             {
+                using var streamReader = new StreamReader(stream);
+#if NET7_0_OR_GREATER
+            var content = await streamReader.ReadToEndAsync(cts.Token).ConfigureAwait(false);
+#else
+                var content = await streamReader.ReadToEndAsync().ConfigureAwait(false);
+#endif
 #if NETSTANDARD2_0
                 File.WriteAllText(Path.Combine(logPath, logFileName), content);
 #else
                 await File.WriteAllTextAsync(Path.Combine(logPath, logFileName), content, cancellationToken);
 #endif
+                return JsonSerializer.Deserialize(content, ApiWeatherResultJsonContext.Default.ApiWeatherResult);
             }
 
-            return JsonSerializer.Deserialize(content, ApiWeatherResultJsonContext.Default.ApiWeatherResult);
+            return await JsonSerializer.DeserializeAsync(stream, ApiWeatherResultJsonContext.Default.ApiWeatherResult, cancellationToken).ConfigureAwait(false);
         }
         catch (HttpRequestException ex)
         {
@@ -185,51 +186,49 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
     /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
     public async ValueTask<Readings> GetReadingsAsync<T>(T locationQuery, CancellationToken cancellationToken = default) where T : ILocationQuery
     {
-        using (await _asyncKeyedLocker.LockAsync(locationQuery, cancellationToken, true).ConfigureAwait(true))
-        {
-            var dateTime = DateTime.UtcNow;
-            var found = _memoryCache.TryGetValue(locationQuery, out Readings apiCache);
+        using var _ = await _asyncKeyedLocker.LockAsync(locationQuery, cancellationToken, true).ConfigureAwait(true);
+        var dateTime = DateTime.UtcNow;
+        var found = _memoryCache.TryGetValue(locationQuery, out Readings apiCache);
 
-            if (found && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= apiCachePeriod)
+        if (found && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= apiCachePeriod)
+        {
+            apiCache.IsFromCache = true;
+            apiCache.ApiRequestMade = false;
+            return apiCache;
+        }
+
+        try
+        {
+            var apiWeatherResult = await GetApiWeatherResultFromLocationQueryAsync(locationQuery, cancellationToken).ConfigureAwait(true);
+            var newValue = new Readings(apiWeatherResult) { ApiRequestMade = true };
+
+            if (!found || !apiCache.IsSuccessful || fetchMode == FetchMode.AlwaysUseLastFetchedValue || newValue.MeasuredTime >= apiCache.MeasuredTime)
+            {
+                _memoryCache.Set(locationQuery, newValue, new MemoryCacheEntryOptions { AbsoluteExpiration = newValue.FetchedTime.AddMilliseconds(resiliencyPeriod) });
+                return newValue;
+            }
+            else
+            {
+                if (fetchMode == FetchMode.AlwaysUseLastMeasuredButExtendCache)
+                {
+                    apiCache.FetchedTime = newValue.FetchedTime;
+                    _memoryCache.Set(locationQuery, apiCache, new MemoryCacheEntryOptions { AbsoluteExpiration = apiCache.FetchedTime.AddMilliseconds(resiliencyPeriod) });
+                }
+                apiCache.IsFromCache = false;
+                apiCache.ApiRequestMade = true;
+                return apiCache;
+            }
+        }
+        catch (OpenWeatherMapCacheException exception)
+        {
+            if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= resiliencyPeriod)
             {
                 apiCache.IsFromCache = true;
                 apiCache.ApiRequestMade = false;
                 return apiCache;
             }
 
-            try
-            {
-                var apiWeatherResult = await GetApiWeatherResultFromLocationQueryAsync(locationQuery, cancellationToken).ConfigureAwait(true);
-                var newValue = new Readings(apiWeatherResult) { ApiRequestMade = true };
-
-                if (!found || !apiCache.IsSuccessful || fetchMode == FetchMode.AlwaysUseLastFetchedValue || newValue.MeasuredTime >= apiCache.MeasuredTime)
-                {
-                    _memoryCache.Set(locationQuery, newValue, new MemoryCacheEntryOptions { AbsoluteExpiration = newValue.FetchedTime.AddMilliseconds(resiliencyPeriod) });
-                    return newValue;
-                }
-                else
-                {
-                    if (fetchMode == FetchMode.AlwaysUseLastMeasuredButExtendCache)
-                    {
-                        apiCache.FetchedTime = newValue.FetchedTime;
-                        _memoryCache.Set(locationQuery, apiCache, new MemoryCacheEntryOptions { AbsoluteExpiration = apiCache.FetchedTime.AddMilliseconds(resiliencyPeriod) });
-                    }
-                    apiCache.IsFromCache = false;
-                    apiCache.ApiRequestMade = true;
-                    return apiCache;
-                }
-            }
-            catch (OpenWeatherMapCacheException exception)
-            {
-                if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= resiliencyPeriod)
-                {
-                    apiCache.IsFromCache = true;
-                    apiCache.ApiRequestMade = false;
-                    return apiCache;
-                }
-
-                return new Readings(exception);
-            }
+            return new Readings(exception);
         }
     }
 
@@ -240,51 +239,49 @@ public sealed class OpenWeatherMapCache(string apiKey, int apiCachePeriod, Fetch
     /// <returns>A <see cref="Readings"/> object for the provided location, or the default value if the operation failed (<see cref="Readings.IsSuccessful"/> = false).</returns>
     public Readings GetReadings<T>(T locationQuery) where T : ILocationQuery
     {
-        using (_asyncKeyedLocker.Lock(locationQuery))
-        {
-            var dateTime = DateTime.UtcNow;
-            var found = _memoryCache.TryGetValue(locationQuery, out Readings apiCache);
+        using var _ = _asyncKeyedLocker.Lock(locationQuery);
+        var dateTime = DateTime.UtcNow;
+        var found = _memoryCache.TryGetValue(locationQuery, out Readings apiCache);
 
-            if (found && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= apiCachePeriod)
+        if (found && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= apiCachePeriod)
+        {
+            apiCache.IsFromCache = true;
+            apiCache.ApiRequestMade = false;
+            return apiCache;
+        }
+
+        try
+        {
+            var apiWeatherResult = GetApiWeatherResultFromLocationQuery(locationQuery);
+            var newValue = new Readings(apiWeatherResult) { ApiRequestMade = true };
+
+            if (!found || !apiCache.IsSuccessful || fetchMode == FetchMode.AlwaysUseLastFetchedValue || newValue.MeasuredTime >= apiCache.MeasuredTime)
+            {
+                _memoryCache.Set(locationQuery, newValue, new MemoryCacheEntryOptions { AbsoluteExpiration = newValue.FetchedTime.AddMilliseconds(resiliencyPeriod) });
+                return newValue;
+            }
+            else
+            {
+                if (fetchMode == FetchMode.AlwaysUseLastMeasuredButExtendCache)
+                {
+                    apiCache.FetchedTime = newValue.FetchedTime;
+                    _memoryCache.Set(locationQuery, apiCache, new MemoryCacheEntryOptions { AbsoluteExpiration = apiCache.FetchedTime.AddMilliseconds(resiliencyPeriod) });
+                }
+                apiCache.IsFromCache = false;
+                apiCache.ApiRequestMade = true;
+                return apiCache;
+            }
+        }
+        catch (OpenWeatherMapCacheException exception)
+        {
+            if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= resiliencyPeriod)
             {
                 apiCache.IsFromCache = true;
                 apiCache.ApiRequestMade = false;
                 return apiCache;
             }
 
-            try
-            {
-                var apiWeatherResult = GetApiWeatherResultFromLocationQuery(locationQuery);
-                var newValue = new Readings(apiWeatherResult) { ApiRequestMade = true };
-
-                if (!found || !apiCache.IsSuccessful || fetchMode == FetchMode.AlwaysUseLastFetchedValue || newValue.MeasuredTime >= apiCache.MeasuredTime)
-                {
-                    _memoryCache.Set(locationQuery, newValue, new MemoryCacheEntryOptions { AbsoluteExpiration = newValue.FetchedTime.AddMilliseconds(resiliencyPeriod) });
-                    return newValue;
-                }
-                else
-                {
-                    if (fetchMode == FetchMode.AlwaysUseLastMeasuredButExtendCache)
-                    {
-                        apiCache.FetchedTime = newValue.FetchedTime;
-                        _memoryCache.Set(locationQuery, apiCache, new MemoryCacheEntryOptions { AbsoluteExpiration = apiCache.FetchedTime.AddMilliseconds(resiliencyPeriod) });
-                    }
-                    apiCache.IsFromCache = false;
-                    apiCache.ApiRequestMade = true;
-                    return apiCache;
-                }
-            }
-            catch (OpenWeatherMapCacheException exception)
-            {
-                if (found && apiCache.IsSuccessful && dateTime.Subtract(apiCache.FetchedTime).TotalMilliseconds <= resiliencyPeriod)
-                {
-                    apiCache.IsFromCache = true;
-                    apiCache.ApiRequestMade = false;
-                    return apiCache;
-                }
-
-                return new Readings(exception);
-            }
+            return new Readings(exception);
         }
     }
 
