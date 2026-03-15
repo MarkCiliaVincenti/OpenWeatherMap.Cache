@@ -74,7 +74,7 @@ public class Tests
 
             if (i < tries)
             {
-                await Task.Delay(apiCachePeriod + 1);
+                await Task.Delay(apiCachePeriod + 1, TestContext.Current.CancellationToken);
             }
         }
     }
@@ -121,7 +121,7 @@ public class Tests
 
             if (i < tries)
             {
-                await Task.Delay(apiCachePeriod + 1);
+                await Task.Delay(apiCachePeriod + 1, TestContext.Current.CancellationToken);
             }
         }
     }
@@ -132,7 +132,7 @@ public class Tests
         var location = new Location(37.7749, -122.4194);
         using var cache = new OpenWeatherMapCache(_apiKey, 1_000);
 
-        var result = await cache.GetReadingsAsync(location);
+        var result = await cache.GetReadingsAsync(location, TestContext.Current.CancellationToken);
 
         Assert.True(result.IsSuccessful);
         Assert.True(result.ApiRequestMade);
@@ -159,7 +159,7 @@ public class Tests
     public async Task GetReadingsAsync_ShouldThrowArgumentException_WhenInvalidLocationQuery()
     {
         using var cache = new OpenWeatherMapCache(_apiKey, 1000);
-        await Assert.ThrowsAsync<ArgumentException>(async () => await cache.GetReadingsAsync(new InvalidQuery()));
+        await Assert.ThrowsAsync<ArgumentException>(async () => await cache.GetReadingsAsync(new InvalidQuery(), TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -171,7 +171,7 @@ public class Tests
         using var cache = new OpenWeatherMapCache(_apiKey, 1000, logPath: tempDir);
         var location = new Location(48.8566, 2.3522);
 
-        var _ = await cache.GetReadingsAsync(location);
+        var _ = await cache.GetReadingsAsync(location, TestContext.Current.CancellationToken);
 
         var expectedFile = Path.Combine(tempDir, $"{location.Latitude.ToString(CultureInfo.InvariantCulture).Replace('.', '_')}-{location.Longitude.ToString(CultureInfo.InvariantCulture).Replace('.', '_')}.json");
         Assert.True(File.Exists(expectedFile));
@@ -216,7 +216,7 @@ public class Tests
         using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
         var zipCode = new ZipCode("90210", "US");
 
-        var reading = await cache.GetReadingsAsync(zipCode);
+        var reading = await cache.GetReadingsAsync(zipCode, TestContext.Current.CancellationToken);
 
         Assert.True(reading.IsSuccessful);
         Assert.False(reading.IsFromCache);
@@ -228,7 +228,7 @@ public class Tests
         using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
         var city = new City("Beverly Hills", "US");
 
-        var reading = await cache.GetReadingsAsync(city);
+        var reading = await cache.GetReadingsAsync(city, TestContext.Current.CancellationToken);
 
         Assert.True(reading.IsSuccessful);
         Assert.False(reading.IsFromCache);
@@ -312,7 +312,7 @@ public class Tests
         using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000, fetchMode: Enums.FetchMode.AlwaysUseLastFetchedValue);
         var zipCode = new ZipCode("90210", "US");
 
-        var reading = await cache.GetReadingsAsync(zipCode);
+        var reading = await cache.GetReadingsAsync(zipCode, TestContext.Current.CancellationToken);
         var reading2 = cache.GetReadings(zipCode);
 
         Assert.Equal(reading.Weather.First().GetHashCode(), reading2.Weather.First().GetHashCode());
@@ -325,8 +325,8 @@ public class Tests
         Assert.True(reading.Equals(reading2));
         Assert.True(reading.Equals((object)reading2));
 
-        await Task.Delay(1000);
-        reading2 = await cache.GetReadingsAsync(zipCode);
+        await Task.Delay(1000, TestContext.Current.CancellationToken);
+        reading2 = await cache.GetReadingsAsync(zipCode, TestContext.Current.CancellationToken);
         Assert.False(reading.Equals(reading2));
 
         Assert.False(reading.Equals(null));
@@ -339,7 +339,7 @@ public class Tests
         using var cache = new OpenWeatherMapCache(_apiKey, apiCachePeriod: 1000);
         var city = new City("Beverley Hills", "US");
 
-        var reading = await cache.GetReadingsAsync(city);
+        var reading = await cache.GetReadingsAsync(city, TestContext.Current.CancellationToken);
         var reading2 = cache.GetReadings(city);
 
         Assert.Equal(reading.Weather.First().GetHashCode(), reading2.Weather.First().GetHashCode());
