@@ -3,7 +3,7 @@
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
     <ItemGroup>
-        <PackageVersion Include="AsyncKeyedLock" Version="8.1.1" />
+        <PackageVersion Include="AsyncKeyedLock" Version="8.1.2" />
         <PackageVersion Include="coverlet.collector" Version="10.0.1" />
         <PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.5" />
         <PackageVersion Include="FluentAssertions" Version="6.12.1" />
@@ -14,7 +14,8 @@
         <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
         <PackageVersion Include="UnitsNet" Version="5.75.1" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
-        <PackageVersion Include="xunit.v3.mtp-v1" Version="4.0.1" />
+        <PackageVersion Include="xunit.v3.assert" Version="4.0.1" />
+        <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.1" />
         <PackageVersion Include="xunit.v3" Version="4.0.1" />
     </ItemGroup>
     <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
