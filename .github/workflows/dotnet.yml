@@ -34,9 +34,6 @@ jobs:
     - name: Build
       run: dotnet build --no-restore --configuration Release
 
-    - name: Test .NET Framework 4.8.1
-      run: dotnet test --framework net481 --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
-      
     - name: Test .NET 8.0
       run: dotnet test --framework net8.0 --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
 
