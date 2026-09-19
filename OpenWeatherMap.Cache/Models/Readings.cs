@@ -2,7 +2,6 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Linq;
 using UnitsNet;
 
 namespace OpenWeatherMap.Cache.Models;
@@ -176,14 +175,26 @@ public struct Readings : IEquatable<Readings>
 
     internal Readings(ApiWeatherResult apiWeatherResult)
     {
-        Weather = [.. apiWeatherResult.Weather.Select(
-            weather => new WeatherCondition
+        var apiWeather = apiWeatherResult.Weather;
+        if (apiWeather == null || apiWeather.Length == 0)
+        {
+            Weather = Array.Empty<WeatherCondition>();
+        }
+        else
+        {
+            Weather = new WeatherCondition[apiWeather.Length];
+            for (var i = 0; i < apiWeather.Length; i++)
             {
-                ConditionId = weather.Id,
-                Main = weather.Main,
-                Description = weather.Description,
-                IconId = weather.Icon
-            })];
+                var weather = apiWeather[i];
+                Weather[i] = new WeatherCondition
+                {
+                    ConditionId = weather.Id,
+                    Main = weather.Main,
+                    Description = weather.Description,
+                    IconId = weather.Icon
+                };
+            }
+        }
         Temperature = Temperature.FromKelvins(apiWeatherResult.Main.Temp);
         FeelsLike = Temperature.FromKelvins(apiWeatherResult.Main.FeelsLike);
         Pressure = Pressure.FromHectopascals(apiWeatherResult.Main.Pressure);

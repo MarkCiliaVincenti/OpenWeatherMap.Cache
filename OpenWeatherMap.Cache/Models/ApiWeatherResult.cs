@@ -1,7 +1,6 @@
 // Copyright (c) All contributors.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace OpenWeatherMap.Cache.Models;
@@ -123,7 +122,7 @@ internal struct ApiWeatherResult
     public ApiCoord? Coord { get; set; }
 
     [JsonPropertyName("weather")]
-    public IEnumerable<ApiWeather> Weather { get; set; }
+    public ApiWeather[] Weather { get; set; }
 
     [JsonPropertyName("base")]
     public string Base { get; set; }

@@ -19,7 +19,7 @@ jobs:
       with:
         dotnet-version: |
             8.0.x
-            10.0.201
+            10.0.401
         
     - name: Restore dependencies
       run: dotnet restore

@@ -22,18 +22,24 @@ internal sealed class HttpClientService : IDisposable
 
     internal HttpClientService(IHttpClientFactory httpClientFactory)
     {
-        _httpClient = httpClientFactory.CreateClient("OpenWeatherMapClient");        
+        _httpClient = httpClientFactory.CreateClient("OpenWeatherMapClient");
+        _httpClient.DefaultRequestHeaders.Accept.Clear();
+        _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        _httpClient.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+        {
+            NoCache = true,
+            NoStore = true
+        };
     }
 
     internal Task<HttpResponseMessage> SendAsync(string uri, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead, CancellationToken cancellationToken = default)
     {
-        return SendAsync(new Uri(uri), httpCompletionOption, cancellationToken);
+        return _httpClient.GetAsync(uri, httpCompletionOption, cancellationToken);
     }
 
-    internal async Task<HttpResponseMessage> SendAsync(Uri uri, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead, CancellationToken cancellationToken = default)
+    internal Task<HttpResponseMessage> SendAsync(Uri uri, HttpCompletionOption httpCompletionOption = HttpCompletionOption.ResponseContentRead, CancellationToken cancellationToken = default)
     {
-        using var request = BuildHttpRequestMessage(uri);
-        return await _httpClient.SendAsync(request, httpCompletionOption, cancellationToken);
+        return _httpClient.GetAsync(uri, httpCompletionOption, cancellationToken);
     }
 
     internal static HttpClient CreateHttpClient(int timeoutMilliseconds)
@@ -42,7 +48,8 @@ internal sealed class HttpClientService : IDisposable
         var handler = new HttpClientHandler
         {
             AllowAutoRedirect = true,
-            CookieContainer = new CookieContainer()
+            UseCookies = false,
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
         };
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
@@ -52,27 +59,6 @@ internal sealed class HttpClientService : IDisposable
         };
 
         return client;
-    }
-
-    private static HttpRequestMessage BuildHttpRequestMessage(Uri uri)
-    {
-        var request = new HttpRequestMessage(HttpMethod.Get, uri)
-        {
-            Version = new Version(1, 1)
-        };
-
-        request.Headers.Accept.ParseAdd("application/json");
-        request.Headers.TryAddWithoutValidation("If-Modified-Since", DateTime.MinValue.ToString("r"));
-        request.Headers.UserAgent.Clear();
-        request.Headers.ConnectionClose = true;
-
-        request.Headers.CacheControl = new CacheControlHeaderValue
-        {
-            NoCache = true,
-            NoStore = true
-        };
-
-        return request;
     }
 
     private void Dispose(bool disposing)
