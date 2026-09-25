@@ -22,7 +22,10 @@ public class Tests
 
     public Tests()        
     {
-        var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .AddUserSecrets<Tests>()
+            .Build();
         _apiKey = config["apiKey"];
 
         if (string.IsNullOrWhiteSpace(_apiKey) || _apiKey == "[API Key]")

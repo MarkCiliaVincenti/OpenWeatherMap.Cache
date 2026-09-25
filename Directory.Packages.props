@@ -17,6 +17,7 @@
         <PackageVersion Include="Microsoft.Extensions.Caching.Memory" FrameworkCompatibleVersion="$(FrameworkCompatibleVersion)" />
         <PackageVersion Include="Microsoft.Extensions.Configuration" FrameworkCompatibleVersion="$(FrameworkCompatibleVersion)" />
         <PackageVersion Include="Microsoft.Extensions.Configuration.Json" FrameworkCompatibleVersion="$(FrameworkCompatibleVersion)" />
+        <PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" FrameworkCompatibleVersion="$(FrameworkCompatibleVersion)" />
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" FrameworkCompatibleVersion="$(FrameworkCompatibleVersion)" />
         <PackageVersion Include="Microsoft.Extensions.Http" FrameworkCompatibleVersion="$(FrameworkCompatibleVersion)" />
         <PackageVersion Include="System.Text.Json" FrameworkCompatibleVersion="$(FrameworkCompatibleVersion)" />
