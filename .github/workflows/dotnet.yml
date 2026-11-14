@@ -19,7 +19,7 @@ jobs:
       with:
         dotnet-version: |
             8.0.x
-            10.0.401
+            11.0.100
         
     - name: Restore dependencies
       run: dotnet restore
@@ -38,8 +38,8 @@ jobs:
 
       run: dotnet test OpenWeatherMap.Cache.Tests\OpenWeatherMap.Cache.Tests.csproj --framework net8.0 --no-restore --configuration Release -- --coverage --coverage-output-format cobertura --coverage-output net8.0.cobertura.xml --results-directory ${{ github.workspace }}\coverage
 
-    - name: Test .NET 10.0
-      run: dotnet test OpenWeatherMap.Cache.Tests\OpenWeatherMap.Cache.Tests.csproj --framework net10.0 --no-restore --configuration Release -- --coverage --coverage-output-format cobertura --coverage-output net10.0.cobertura.xml --results-directory ${{ github.workspace }}\coverage
+    - name: Test .NET 11.0
+      run: dotnet test OpenWeatherMap.Cache.Tests\OpenWeatherMap.Cache.Tests.csproj --framework net11.0 --no-restore --configuration Release -- --coverage --coverage-output-format cobertura --coverage-output net10.0.cobertura.xml --results-directory ${{ github.workspace }}\coverage
 
     - name: Code Coverage
       uses: codecov/codecov-action@v5
